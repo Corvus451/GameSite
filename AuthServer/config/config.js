@@ -9,6 +9,7 @@ module.exports = {
     PGPORT: process.env.PGPORT || 5432,
     ENDPOINT_PREFIX: process.env.ENDPOINT_PREFIX || "/api/auth_v1",
     JWT_SECRET: process.env.JWT_SECRET,
-    JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
+    JWT_SESSION_EXPIRES_IN: process.env.JWT__SESSION_EXPIRES_IN,
+    JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN,
     DEVENV: process.env.DEVENV
 }
