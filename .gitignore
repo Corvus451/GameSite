@@ -1,0 +1,7 @@
+.vs/
+.terraform/
+node_modules/
+secret.auto.tfvars
+secret.tfvars
+terraform.tfstate*
+.env
