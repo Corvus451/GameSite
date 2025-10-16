@@ -7,3 +7,7 @@ variable "project_name" {
   type = string
   default = "gamesite"
 }
+
+variable "bastion_key_name" {
+  type = string
+}

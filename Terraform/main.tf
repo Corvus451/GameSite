@@ -14,3 +14,17 @@ module "eks" {
   subnet_private_ids = module.vpc.subnet_private_ids
   configure_kubectl = true
 }
+
+module "bastion" {
+  source = "./modules/bastion"
+  vpc_id = module.vpc.vpc_id
+  subnet_public_id = module.vpc.subnet_public_id
+  bastion_key_name = var.bastion_key_name
+  project_name = var.project_name
+
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt update
+              sudo apt install -y postgresql-client redis-tools
+              EOF
+}
