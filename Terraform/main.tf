@@ -28,3 +28,37 @@ module "bastion" {
               sudo apt install -y postgresql-client redis-tools
               EOF
 }
+
+module "database-auth" {
+  source = "./modules/database"
+  identifier = "${var.project_name}-database-auth"
+  storage_size = 5
+  db_username = var.db_username
+  db_password = var.db_password
+  database_name = "auth"
+  subnet_group_name = module.vpc.subnet_group_db_name
+  security_group_id = module.vpc.security_group_db_id
+}
+
+resource "terraform_data" "sql_init" {
+  depends_on = [ module.bastion, module.database-auth]
+  
+  connection {
+    type = "ssh"
+    host = module.bastion.bastion_ip
+    user = "ubuntu"
+    private_key = file(var.bastion_key_path)
+  }
+
+  provisioner "file" {
+    source = "../Database/auth_init.sql"
+    destination = "/home/ubuntu/init.sql"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+       "PGPASSWORD=${var.db_password} psql -h ${module.database-main.database_address} -U ${var.db_username} -d auth -f /home/ubuntu/init.sql",
+    ]
+  }
+}
+
