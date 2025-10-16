@@ -20,12 +20,18 @@ const pool = new Pool({
 });
 
 // Function to execute SQL queries
-exports.query = async (text, params) => {
+exports.query = async (text, params, notify) => {
+  const client = await pool.connect();
   try {
-    const result = await pool.query(text, params);
+    const result = await client.query(text, params);
+    if(notify) {
+      await client.query("NOTIFY user_created, $1", [JSON.stringify(result.rows[0] || {})]);
+    }
     return result.rows; // Return the query results (rows)
   } catch (error) {
     console.error('Database query error:', error.stack);
     throw error; // Rethrow the error for the caller to handle
+  } finally {
+    client.release();
   }
 }
