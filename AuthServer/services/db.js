@@ -25,7 +25,8 @@ exports.query = async (text, params, notify) => {
   try {
     const result = await client.query(text, params);
     if(notify) {
-      await client.query("NOTIFY user_created, $1", [JSON.stringify(result.rows[0] || {})]);
+      const payload = JSON.stringify(result.rows[0] || {})
+      await client.query(`NOTIFY user_created, '${payload.replace(/'/g, "''")}'`);
     }
     return result.rows; // Return the query results (rows)
   } catch (error) {
