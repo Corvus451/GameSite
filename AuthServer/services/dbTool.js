@@ -24,8 +24,9 @@ exports.GetUserById = async (id) => {
     return User(result[0]);
 }
 
-exports.GetHashedPasswordById = async () => {
-    
+exports.GetHashedPasswordById = async (id) => {
+    const result = await query("SELECT password_hash FROM passwords WHERE user_id = $1", [id]);
+    return result[0].password_hash;
 }
 
 exports.CreateRefreshToken = async () => {
@@ -37,6 +38,11 @@ exports.DeleteRefreshToken = async () => {
 }
 
 exports.GetTokenById = async (id) => {
-    const result = await query("SELECT * FROM passwords WHERE user_id = $1", [id]);
+    const result = await query("SELECT * FROM refresh_tokens WHERE user_id = $1", [id]);
+    return result[0];
+}
+
+exports.StoreRefreshToken = async (user_id, token) => {
+    const result = await query("INSERT INTO refresh_tokens(user_id, token) VALUES($1, $2)", [user_id, token]);
     return result[0];
 }

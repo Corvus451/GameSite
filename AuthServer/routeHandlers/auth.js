@@ -17,26 +17,23 @@ exports.authenticate = async(req, res) => {
 
 exports.refreshToken = async(req, res) => {
     try {
-        
         const refreshToken = req.cookies.refreshToken;
-
-        if(!token) {
-            return unauthorized(res, "Missing sessionToken");
+        if(!refreshToken) {
+            return unauthorized(res, "Missing refreshToken");
         }
 
-        let userId;
+        let decoded;
 
         try {
-            userId = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+            decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
         } catch (error) {
-            return unauthorized(res, "Invalid sessionToken");
+            return unauthorized(res, "Invalid refreshToken");
         }
 
-        const dbToken = await dbTool.GetTokenById(userId);
-        const user = await dbTool.GetUserById(userId);
-
-        if(!dbToken || dbToken !== refreshToken) {
-            return unauthorized(res, "Invalid sessionToken");
+        const dbToken = await dbTool.GetTokenById(decoded.user_id);
+        const user = await dbTool.GetUserById(decoded.user_id);
+        if(!dbToken || dbToken.token !== refreshToken) {
+            return unauthorized(res, "Invalid refreshToken");
         }
 
         const sessionToken = jwt.sign(user, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
@@ -70,7 +67,8 @@ exports.register = async(req, res) => {
         const createdUser = await dbTool.CreateUser(username, passwordHash);
 
         const sessionToken = jwt.sign(createdUser, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
-        const refreshToken = jwt.sign(createdUser.user_id, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES_IN});
+        const refreshToken = jwt.sign({user_id: createdUser.user_id}, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES_IN});
+        await dbTool.StoreRefreshToken(createdUser.user_id, refreshToken);
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -92,13 +90,11 @@ exports.register = async(req, res) => {
 exports.login = async(req, res) => {
     try {
         const { username, password } = req.body;
-
         if(!username || !password) {
             return badRequest(res, "Missing username or password");
         }
 
         const user = await dbTool.getUserByName(username);
-
         if(!user){
             return badRequest(res, "Invalid username");
         }
@@ -111,7 +107,8 @@ exports.login = async(req, res) => {
         }
 
         const sessionToken = jwt.sign(user, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
-        const refreshToken = jwt.sign(user.user_id, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES_IN});
+        const refreshToken = jwt.sign({user_id: user.user_id}, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES_IN});
+        await dbTool.StoreRefreshToken(user.user_id, refreshToken);
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,

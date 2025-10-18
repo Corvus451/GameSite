@@ -13,7 +13,7 @@ CREATE TABLE passwords (
     user_id integer NOT NULL,
     password_hash varchar(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-)
+);
 
 CREATE TABLE refresh_tokens (
     token_id serial PRIMARY KEY,
