@@ -14,7 +14,7 @@ app.post(ENDPOINT_PREFIX + "/authenticate", auth.authenticate);
 app.post(ENDPOINT_PREFIX + "/refreshtoken", cookieParser(), auth.refreshToken);
 app.post(ENDPOINT_PREFIX + "/register", auth.register);
 app.post(ENDPOINT_PREFIX + "/login", auth.login);
-app.post(ENDPOINT_PREFIX + "/logout", auth.logout);
+app.post(ENDPOINT_PREFIX + "/logout", cookieParser(), auth.logout);
 
 
 

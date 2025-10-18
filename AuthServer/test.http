@@ -21,3 +21,17 @@ Content-Type: application/json
 ### REFRESH SESSION TOKEN
 POST http://localhost:3001/api/auth_v1/refreshtoken
 Cookie: refreshToken=
+
+
+### AUTHENTICATE WITH SESSION TOKEN
+POST http://localhost:3001/api/auth_v1/authenticate
+Content-Type: application/json
+
+{
+    "sessionToken": ""
+}
+
+
+### LOG OUT
+POST http://localhost:3001/api/auth_v1/logout
+Cookie: refreshToken=

@@ -9,10 +9,34 @@ const {
     JWT_REFRESH_EXPIRES_IN
 } = require("../config/config.js");
 const { internalServerError, badRequest, conflict, unauthorized } = require("../utilities/errorHandlers.js");
+const { User } = require("../models/user.js");
 
 
 exports.authenticate = async(req, res) => {
+    try {
+        const token = req.body.sessionToken;
+        console.log("SESSION TOKEN:");
+        console.log(token);
 
+        if(!token) {
+            return badRequest(res, "Missing sessionToken");
+        }
+
+        let decoded;
+
+        try {
+            decoded = jwt.verify(token, JWT_SESSION_SECRET);
+        } catch (error) {
+            return unauthorized(res, "Invalid sessionToken");
+        }
+
+        res.status(200).json({
+            user: User(decoded)
+        });
+
+    } catch (error) {
+        internalServerError(error, res);
+    }
 }
 
 exports.refreshToken = async(req, res) => {
@@ -128,5 +152,33 @@ exports.login = async(req, res) => {
 }
 
 exports.logout = async(req, res) => {
-    
+    try {
+        const token = req.cookies.refreshToken;
+
+        if(!token){
+            return unauthorized(res, "Missing refreshToken");
+        }
+
+        let decoded;
+
+        try {
+            decoded = jwt.verify(token, JWT_REFRESH_SECRET);
+        } catch (error) {
+            return unauthorized(res, "Invalid refreshToken");
+        }
+
+        await dbTool.DeleteRefreshToken(decoded.user_id);
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            sameSite: "strict"
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Logout successful"
+        });
+
+    } catch (error) {
+        internalServerError(error, res);
+    }
 }
