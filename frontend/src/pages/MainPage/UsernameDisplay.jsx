@@ -1,10 +1,12 @@
 import { useContext } from "react"
 import { SettingsContext } from "../../main"
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const UsernameDisplay = () => {
 
     const [settings, setSettings] = useContext(SettingsContext);
+    const navigate = useNavigate();
 
     const logout = async ()=> {
         const result = await fetch("/api/auth_v1/logout", {
@@ -13,6 +15,7 @@ const UsernameDisplay = () => {
 
         if(result.ok){
             setSettings({username: "", loggedIn: false, sessionToken: ""});
+            navigate("/login");
         }
         else{
             alert("fail");

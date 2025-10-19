@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { SettingsContext } from "../../main";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 const Login = () => {
 
     const [username, setUsername] = useState("");
@@ -27,12 +29,12 @@ const Login = () => {
         const data = await result.json();
 
         if(result.ok){
-            setSettings({
-                ...settings, username: data.user.username, sessionToken: data.sessionToken, loggedIn: true
-            });
+            // setSettings({
+            //     ...settings, username: data.user.username, sessionToken: data.sessionToken, loggedIn: true
+            // });
             navigate("/");
         }else{
-            alert("success: " + data.success + " | " + data.message);
+            alert(data.message);
         }
         console.log(result);
     }
@@ -47,6 +49,7 @@ const Login = () => {
                 <label htmlFor="password">Password</label><br />
                 <input type="password" name="password" id="password" onChange={(e)=> setPassword(e.target.value)}/><br />
                 <button onClick={login}>Login</button>
+                <Link to="/register">Register</Link>
             </div>
         </div>
     )

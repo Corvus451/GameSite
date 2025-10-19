@@ -1,6 +1,8 @@
 import { useContext, useState } from "react";
 import { SettingsContext } from "../../main";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+
 const Register = () => {
 
     const [username, setUsername] = useState("");
@@ -28,12 +30,12 @@ const Register = () => {
         const data = await result.json();
 
         if(result.ok){
-            setSettings({
-                ...settings, username: data.user.username, sessionToken: data.sessionToken, loggedIn: true
-            });
+            // setSettings({
+            //     ...settings, username: data.user.username, sessionToken: data.sessionToken, loggedIn: true
+            // });
             navigate("/");
         }else{
-            alert("success: " + data.success + " | " + data.message);
+            alert(data.message);
         }
         console.log(result);
     }
@@ -50,6 +52,7 @@ const Register = () => {
                 <label htmlFor="confirm">Confirm password</label><br />
                 <input type="password" name="confirm" id="confirm" onChange={(e)=> setConfirm(e.target.value)} className={password !== confirm ? "invalid" : ""}/><br />
                 <button onClick={register}>Register</button>
+                <Link to="/login">Login</Link>
             </div>
         </div>
     )

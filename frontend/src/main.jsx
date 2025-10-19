@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createContext, useContext } from 'react';
 import "./style.css"
-import Layout from './components/Layout/Layout';
+import MainPage from './pages/MainPage/MainPage';
 import Test from './components/Test/Test';
 import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
@@ -29,7 +29,7 @@ const SettingsProvider = ({ children }) => {
 const router = createBrowserRouter([
 {
   path: "/",
-  element: <Layout />,
+  element: <MainPage />,
   errorElement: null,
   children: [
     {
