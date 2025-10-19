@@ -1,7 +1,6 @@
 const { hashPassword, verifyPassword } = require("../utilities/password.js");
 const dbTool = require("../services/dbTool.js");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const {
     JWT_SESSION_SECRET,
     JWT_REFRESH_SECRET,
@@ -103,7 +102,8 @@ exports.register = async(req, res) => {
         res.status(201).json({
             success: true,
             message: "Successfully registered",
-            sessionToken: sessionToken
+            sessionToken: sessionToken,
+            user: createdUser
         });
 
     } catch (error) {
@@ -143,7 +143,8 @@ exports.login = async(req, res) => {
         res.status(201).json({
             success: true,
             message: "Login successful",
-            sessionToken: sessionToken
+            sessionToken: sessionToken,
+            user: user
         });
 
     } catch (error) {
