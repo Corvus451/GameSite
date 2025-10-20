@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createContext, useContext } from 'react';
 import "./style.css"
 import MainPage from './pages/MainPage/MainPage';
-import Test from './components/Test/Test';
 import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
 
@@ -31,12 +30,6 @@ const router = createBrowserRouter([
   path: "/",
   element: <MainPage />,
   errorElement: null,
-  children: [
-    {
-      path: "/test",
-      element: <Test />
-    }
-  ]
 },
 {
   path: "/register",

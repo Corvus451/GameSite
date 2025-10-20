@@ -12,6 +12,12 @@ export default defineConfig({
         secure: false,  // If true, requires a valid SSL certificate on the target
         rewrite: (path) => path.replace(/^\/api/, '/api'),  // Optional: Rewrite paths (e.g., keep /api prefix)
       },
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      }
     },
   },
 })

@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { SettingsContext } from "../../main";
 import UsernameDisplay from "./UsernameDisplay";
+import CreateLobby from "./CreateLobby";
+import LobbyList from "../../components/LobbyList";
 
 const MainPage = () => {
 
@@ -31,27 +33,11 @@ const MainPage = () => {
         checkToken();
     }, []);
 
-
-
-    const testSessionToken = async () => {
-        console.log(settings);
-    }
-
-    const testRefreshToken = async () => {
-
-    }
-
-    if(loading){
-        return <h1>Loading</h1>
-    }
-
-
-
     return (<>
         <div className="sidepanel">
-            <UsernameDisplay />
-            <button onClick={testSessionToken}>Test sessionToken</button>
-            <button onClick={testRefreshToken}>Test refreshToken</button>
+            <UsernameDisplay /><hr />
+            <CreateLobby/><hr />
+            {!loading && (<><LobbyList /><hr /></>)}
         </div>
 
         <div className="mainpanel">

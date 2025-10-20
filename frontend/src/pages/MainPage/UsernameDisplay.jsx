@@ -24,7 +24,9 @@ const UsernameDisplay = () => {
     }
 
     return (
-        <div className="namedisplay">{settings.loggedIn ? (<>{settings.username}<button onClick={logout}>Logout</button></>): (<><Link to="/login">Login</Link><Link to="/register">Register</Link></>)}</div>
+        <div className="namedisplay">
+            {settings.loggedIn ? (<><p>{settings.username}</p><button onClick={logout}>Logout</button></>): (<><Link to="/login">Login</Link><Link to="/register">Register</Link></>)}
+        </div>
     )
 }
 
