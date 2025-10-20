@@ -1,6 +1,6 @@
 FROM node:22-alpine
 
-WORKDIR /apiserver
+WORKDIR /authserver
 
 COPY ./utilities/password.js ./utilities/password.js
 COPY ./package*.json ./
