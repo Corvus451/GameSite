@@ -29,10 +29,6 @@ exports.GetHashedPasswordById = async (id) => {
     return result[0].password_hash;
 }
 
-exports.CreateRefreshToken = async () => {
-    
-}
-
 exports.DeleteRefreshToken = async (user_id) => {
     const result = await query("DELETE FROM refresh_tokens WHERE user_id = $1 RETURNING *", [user_id]);
     return result[0];

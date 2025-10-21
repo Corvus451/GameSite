@@ -24,6 +24,7 @@ exports.query = async (text, params, notify) => {
   const client = await pool.connect();
   try {
     const result = await client.query(text, params);
+    // If notify is true, notify subscribed servers about the created user !! todo parameterize notify channel !! 
     if(notify) {
       const payload = JSON.stringify(result.rows[0] || {})
       await client.query(`NOTIFY user_created, '${payload.replace(/'/g, "''")}'`);

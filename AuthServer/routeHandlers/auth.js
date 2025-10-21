@@ -14,15 +14,13 @@ const { User } = require("../models/user.js");
 exports.authenticate = async(req, res) => {
     try {
         const token = req.body.sessionToken;
-        console.log("SESSION TOKEN:");
-        console.log(token);
 
         if(!token) {
             return badRequest(res, "Missing sessionToken");
         }
 
         let decoded;
-
+        // Get user data from token if it is valid
         try {
             decoded = jwt.verify(token, JWT_SESSION_SECRET);
         } catch (error) {
@@ -38,6 +36,7 @@ exports.authenticate = async(req, res) => {
     }
 }
 
+// Generate new session token
 exports.refreshToken = async(req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
@@ -46,19 +45,21 @@ exports.refreshToken = async(req, res) => {
         }
 
         let decoded;
-
+        // Get user id from token if it is valid
         try {
             decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
         } catch (error) {
             return unauthorized(res, "Invalid refreshToken");
         }
 
+        // Check if the token is present in the database
         const dbToken = await dbTool.GetTokenById(decoded.user_id);
         const user = await dbTool.GetUserById(decoded.user_id);
         if(!dbToken || dbToken.token !== refreshToken) {
             return unauthorized(res, "Invalid refreshToken");
         }
 
+        // Generate the new session token
         const sessionToken = jwt.sign(user, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
 
         return res.status(200).json({
@@ -80,6 +81,7 @@ exports.register = async(req, res) => {
             return badRequest(res, "Missing username or password");
         }
 
+        // Check if the name is already used
         const nameUsed = await dbTool.getUserByName(username);
 
         if(nameUsed){
@@ -88,18 +90,22 @@ exports.register = async(req, res) => {
 
         const passwordHash = await hashPassword(password);
 
+        // Create the new user in the database
         const createdUser = await dbTool.CreateUser(username, passwordHash);
 
+        // Generate the tokens and store refresh token in database
         const sessionToken = jwt.sign(createdUser, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
         const refreshToken = jwt.sign({user_id: createdUser.user_id}, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES_IN});
         await dbTool.StoreRefreshToken(createdUser.user_id, refreshToken);
 
+        // Set refresh token as http only cookie
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
         });
 
+        // Send user data and session token in payload
         res.status(201).json({
             success: true,
             message: "Successfully registered",
@@ -119,6 +125,7 @@ exports.login = async(req, res) => {
             return badRequest(res, "Missing username or password");
         }
 
+        // Check if username exists in the database
         const user = await dbTool.getUserByName(username);
         if(!user){
             return badRequest(res, "Invalid username");
@@ -131,16 +138,19 @@ exports.login = async(req, res) => {
             return unauthorized(res, "Invalid credentials");
         }
 
+        // Generate the tokens and store refresh token in database
         const sessionToken = jwt.sign(user, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
         const refreshToken = jwt.sign({user_id: user.user_id}, JWT_REFRESH_SECRET, {expiresIn: JWT_REFRESH_EXPIRES_IN});
         await dbTool.StoreRefreshToken(user.user_id, refreshToken);
 
+        // Set refresh token as http only cookie
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
         });
 
+        // Send user data and session token in payload
         res.status(201).json({
             success: true,
             message: "Login successful",
@@ -162,14 +172,17 @@ exports.logout = async(req, res) => {
         }
 
         let decoded;
-
+        // Get user id from token if it is valid
         try {
             decoded = jwt.verify(token, JWT_REFRESH_SECRET);
         } catch (error) {
             return unauthorized(res, "Invalid refreshToken");
         }
 
+        // Delete token from database
         await dbTool.DeleteRefreshToken(decoded.user_id);
+
+        // Delete token from cookies
         res.clearCookie("refreshToken", {
             httpOnly: true,
             sameSite: "strict"

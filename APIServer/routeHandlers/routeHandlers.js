@@ -20,12 +20,14 @@ exports.createLobby = async (req, res) => {
             req.user.user_id
         );
 
+        // Create game lobby in redis cache
         const result = await redisCreateLobby(newLobby);
 
         if(result !== "OK"){
             return internalServerError(result, res);
         }
 
+        // Send lobby id to client so it can connect to it
         return res.status(201).json({
             success: true,
             message: "Lobby created",

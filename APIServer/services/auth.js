@@ -13,6 +13,7 @@ const authenticate = async (token) => {
         })
     });
 
+    // Throw error if the token is invalid
     if (result.status != 200) {
         const error = Error(result);
         error.name = "Authentication error";
@@ -24,8 +25,10 @@ const authenticate = async (token) => {
     return data.user;
 }
 
+// Middleware for protected endpoints
 const authHandler = async (req, res, next) => {
     try {
+        // Get the session token from request headers
         const sessionToken = req.headers.authorization?.split(' ')[1];
 
 
@@ -35,6 +38,7 @@ const authHandler = async (req, res, next) => {
 
         let user;
 
+        // Get user data from token if it is valid
         try {
             user = await authenticate(sessionToken);
         } catch (error) {
@@ -46,6 +50,7 @@ const authHandler = async (req, res, next) => {
             return unauthorized(res, "Invalid sessionToken");
         }
 
+        // Set req.user so it can be used in the next function
         req.user = user;
         next();
 
