@@ -22,13 +22,17 @@ exports.connectRedis = async () => {
     }
     if(!redisSubscriber.isOpen) {
         await redisSubscriber.connect();
-        redisSubscriber.subscribe(CHANNEL, (message) => {
-            // MAKE HANDLE LOGIC FOR UPDATING
-            console.log("Message received:");
-            console.log(message);
-        });
         console.log("Subscriber connected to redis");
     }
+}
+
+// !! todo Add channel parameter to this function and separate channel by lobbies !!
+exports.redisSetMessageHandler = (handler) => {
+    redisSubscriber.subscribe(CHANNEL, (message)=> {
+        console.log("Message received:");
+        console.log(message);
+        handler(message);
+    })
 }
 
 // exports.redisCreateLobby = async (lobby) => {
@@ -60,6 +64,6 @@ exports.redisDeleteLobby = async (id) => {
 exports.redisAddChatMessage = async (id, message) => {
     const result = await redisClient.json.arrAppend("lobby:"+id, "$.messages", message);
     result && await redisClient.publish(CHANNEL, JSON.stringify({type: "chatmessage", lobby_id: id, message: message}));
-    // CHANNEL + ":" + ID , MAKE SUBSCRIBE LOBBYID SPECIFIC
+    // !! todo Separate channels by lobby !!
     return result;
 }
