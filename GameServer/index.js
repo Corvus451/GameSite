@@ -15,7 +15,7 @@ const setup = async () => {
     const wss = new WebSocket.Server({ port: 3333 });
 
     // Function to call when an other server published something on redis
-    const handleRedisMessage = (message) => {
+    const handleRedisMessage = (message, channel) => {
         const parsed = JSON.parse(message);
 
         switch (parsed.type) {
@@ -24,7 +24,11 @@ const setup = async () => {
                 break;
 
             case "lobbydeleted":
-                // !! todo: disconnect clients before deleting lobby !!
+                const clients = clientLists.get(parsed.lobby_id);
+                clients.forEach(client => {
+                    client.close(1000, JSON.stringify({type: "lobbydeleted", message: "Lobby deleted"}));
+                });
+                redisClient.redisUnsetMessageHandler(channel);
                 clientLists.delete(parsed.lobby_id);
                 break;
 
@@ -34,7 +38,7 @@ const setup = async () => {
     }
 
     // Set the handleRedisMessage function to be called by the subscriber client
-    redisClient.redisSetMessageHandler(handleRedisMessage);
+    // redisClient.redisSetMessageHandler(handleRedisMessage);
 
 
     wss.on("connection", async (ws, req) => {
@@ -52,6 +56,8 @@ const setup = async () => {
         if (!sessionToken) {
             ws.close(4000, JSON.stringify({ type: "error", message: "Mising sessionToken" }));
         }
+
+        redisClient.redisSetMessageHandler(handleRedisMessage, "lobby:"+lobbyId);
 
         // Authenticate client
         const userData = await authenticate(sessionToken);
@@ -107,7 +113,7 @@ const setup = async () => {
             const clients = clientLists.get(ws.lobby_id);
             const index = clients.indexOf(ws);
             clients.splice(index, 1);
-            broadcastMessage(clients, ws, message);
+            broadcastMessage(clients, null, message);
             redisClient.redisAddChatMessage(ws.lobby_id, message);
         });
     });

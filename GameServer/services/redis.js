@@ -1,7 +1,7 @@
 const { REDIS_HOST, REDIS_PORT} = require("../config/config.js");
 const { createClient } = require("redis");
 
-const CHANNEL = "chat";
+const subscribedChannels = new Set();
 
 const redisClient = createClient({
         socket: {
@@ -27,12 +27,20 @@ exports.connectRedis = async () => {
 }
 
 // !! todo Add channel parameter to this function and separate channel by lobbies !!
-exports.redisSetMessageHandler = (handler) => {
-    redisSubscriber.subscribe(CHANNEL, (message)=> {
+exports.redisSetMessageHandler = (handler, channel) => {
+    if(subscribedChannels.has(channel)) {
+        return;
+    }
+    subscribedChannels.add(channel);
+    redisSubscriber.subscribe(channel, (message)=> {
         console.log("Message received:");
         console.log(message);
-        handler(message);
+        handler(message, channel);
     })
+}
+
+exports.redisUnsetMessageHandler = (channel) => {
+    redisSubscriber.unsubscribe(channel);
 }
 
 // exports.redisCreateLobby = async (lobby) => {
@@ -54,16 +62,16 @@ exports.redisGetLobbyById = async (id) => {
     return lobby;
 }
 
-exports.redisDeleteLobby = async (id) => {
-    const result = await redisClient.json.del("lobby:"+id);
-    await redisClient.lRem("lobby:list", 0, "lobby:"+id);
-    result && await redisClient.publish(CHANNEL, JSON.stringify({type: "lobbydeleted", lobby_id: id}));
+exports.redisDeleteLobby = async (lobby_id) => {
+    const result = await redisClient.json.del("lobby:"+lobby_id);
+    await redisClient.lRem("lobby:list", 0, "lobby:"+lobby_id);
+    result && await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "lobbydeleted", lobby_id: lobby_id}));
     return result;
 }
 
-exports.redisAddChatMessage = async (id, message) => {
-    const result = await redisClient.json.arrAppend("lobby:"+id, "$.messages", message);
-    result && await redisClient.publish(CHANNEL, JSON.stringify({type: "chatmessage", lobby_id: id, message: message}));
+exports.redisAddChatMessage = async (lobby_id, message) => {
+    const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.messages", message);
+    result && await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "chatmessage", lobby_id: lobby_id, message: message}));
     // !! todo Separate channels by lobby !!
     return result;
 }
