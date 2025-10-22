@@ -65,13 +65,13 @@ exports.redisGetLobbyById = async (id) => {
 exports.redisDeleteLobby = async (lobby_id) => {
     const result = await redisClient.json.del("lobby:"+lobby_id);
     await redisClient.lRem("lobby:list", 0, "lobby:"+lobby_id);
-    result && await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "lobbydeleted", lobby_id: lobby_id}));
+    await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "lobbydeleted", lobby_id: lobby_id}));
     return result;
 }
 
 exports.redisAddChatMessage = async (lobby_id, message) => {
     const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.messages", message);
-    result && await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "chatmessage", lobby_id: lobby_id, message: message}));
+    await redisClient.publish("lobby:"+lobby_id, JSON.stringify({lobby_id: lobby_id, message: message}));
     // !! todo Separate channels by lobby !!
     return result;
 }

@@ -26,8 +26,7 @@ exports.redisCreateLobby = async (lobby) => {
 exports.redisGetPublicLobbies = async () => {
     const keys = await redisClient.lRange("lobby:list", 0, -1);
     const lobbies = await Promise.all(keys.map(k => redisClient.json.get(k)));
-    console.log(lobbies);
-    const result = lobbies.filter(l => l.public === true);
+    const result = lobbies.filter(l => l?.public === true);
     return result;
 }
 
