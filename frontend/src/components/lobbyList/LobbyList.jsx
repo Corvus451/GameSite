@@ -1,9 +1,10 @@
 import { useContext } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { SettingsContext } from "../main";
+import { SettingsContext } from "../../main";
+import LobbyListing from "./LobbyListing";
 
-const LobbyList = () => {
+const LobbyList = ({ handleJoinLobby }) => {
 
     const [lobbies, setLobbies] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -37,9 +38,13 @@ const LobbyList = () => {
         getLobbies();
     }, []);
 
-    const refresh = async () => {
-        getLobbies();
+    const joinLobby = (lobby_id) => {
+        console.log(lobby_id);
     }
+
+    // const refresh = async () => {
+    //     getLobbies();
+    // }
 
     if (loading) {
         return <h2>Loading</h2>
@@ -47,10 +52,10 @@ const LobbyList = () => {
 
     return (
         <div className="container column" id="lobbylist">
-            <h3>Lobbies</h3>
-            <button onClick={refresh}>Refresh</button>
+            <h3 className="sectiontitle">Lobbies</h3>
+            <button onClick={getLobbies}>Refresh</button>
             {
-                lobbies.map(l => <div className="listitem" key={l.lobby_id}>{l.lobby_name}<button className="joinbutton">Join</button></div>)
+                lobbies.map(l => <LobbyListing lobby_id={l.lobby_id} lobby_name={l.lobby_name} handleJoinLobby={handleJoinLobby}/>)
             }
         </div>
     )

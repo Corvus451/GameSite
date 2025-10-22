@@ -33,8 +33,8 @@ const CreateLobby = () => {
     }
 
     return (
-        <div id="createlobbymenu">
-            <h3>Create Lobby</h3>
+        <div id="createlobbymenu" className="container">
+            <h3 className="sectiontitle">Create Lobby</h3>
             <div className="container column">
                 <label htmlFor="lobbyname">Lobby name</label>
                 <input type="text" name="lobbyname" id="lobbyname" value={lobbyName} onChange={(e)=> setLobbyName(e.target.value)}/>
