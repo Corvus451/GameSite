@@ -10,7 +10,7 @@ const ChatPanel = ({ ws, setWs }) => {
     const [msg, setMsg] = useState("");
 
     const addChatMessage = async (name, message) => {
-        await setChatHistory([...chatHistory, {username: name, message: message}]);
+        await setChatHistory([...chatHistory, { username: name, message: message }]);
 
     }
 
@@ -27,15 +27,20 @@ const ChatPanel = ({ ws, setWs }) => {
 
     }
 
+    // ws.onclose = (close) => {
+    //     alert("Disconnected:" + close.reason);
+    //     // close chat panel
+    // }
+
     ws.onmessage = (message) => {
         const parsed = JSON.parse(message.data);
-        if(parsed.type === "error"){
+        if (parsed.type === "error") {
             alert(parsed.message);
         }
-        else if(parsed.type === "system-message") {
+        else if (parsed.type === "system-message") {
             addChatMessage("system-message", parsed.message);
         }
-        else if(parsed.type === "chatmessage"){
+        else if (parsed.type === "chatmessage") {
             addChatMessage(parsed.username, parsed.message);
         }
     }
@@ -46,15 +51,14 @@ const ChatPanel = ({ ws, setWs }) => {
     }
 
     return (
-        <div id="chatpanel" className="container column">
+        <div id="chatpanel" className="column">
             <h3 className="sectiontitle">Lobby Chat</h3>
             <hr />
-            <ul className="chathistory">
-                {chatHistory.map((message, i) => 
+            <ul className="chathistory container">
+                {chatHistory.map((message, i) =>
                     <ChatMessage key={i} name={message.username} message={message.message} />
                 )}
             </ul>
-            <hr />
             <div className="container messageinput">
                 <input type="text" onChange={(e) => setMsg(e.target.value)} />
                 <button onClick={() => sendMessage(msg)}>Send</button>

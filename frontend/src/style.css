@@ -1,17 +1,25 @@
 html,
 body {
-    background-color: black;
+    /* background-color: black; */
+    background: #061c1f;
+    /* background: linear-gradient(1deg,rgba(8, 36, 41, 1) 0%, rgba(0, 0, 0, 1) 83%); */
+    background: linear-gradient(1deg,rgba(38, 38, 38, 1) 0%, rgba(0, 0, 0, 1) 83%);
     height: 100%;
     margin: 0;
-    color: beige;
+    color: white;
+    font-family: 'Ubuntu Sans Mono';
+}
+
+a {
+    color: white;
 }
 
 input {
     background-color: transparent;
-    border: 1px solid beige;
+    border: 1px solid white;
     border-radius: 5px;
     height: 1.5rem;
-    color: beige;
+    color: white;
     padding-left: 0.5rem;
     padding-top: 0.2rem;
     padding-bottom: 0.2rem;
@@ -19,14 +27,27 @@ input {
 }
 
 hr {
-    color: beige;
-    margin: 0;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    color: white;
+    /* margin-top: 0.5rem;
+    margin-bottom: 0.5rem; */
+    margin: 0.5rem;
 }
 
 .inline {
     display: inline-flex;
+}
+
+.container {
+    /* background-color: rgb(29, 29, 29); */
+    display: flex;
+    /* backdrop-filter: blur(150px) contrast(0.9);
+    box-shadow: inset 0px 0px 20px 11px #ffffff0f;
+    border-radius: 7px;
+    padding: 0.5rem; */
+    backdrop-filter: blur(150px) contrast(0.85);
+    box-shadow: inset 0px 0px 20px 11px #c9c9c90f;
+    border-radius: 7px;
+    padding: 0.5rem;
 }
 
 .namedisplay {
@@ -39,17 +60,17 @@ hr {
 
 button {
     background-color: transparent;
-    color: beige;
-    border: 1px solid beige;
+    color: white;
+    border: 1px solid gray;
     border-radius: 5px;
     padding: 0.3rem;
-    font-weight: bold;
+    /* font-weight: bold; */
     height: fit-content;
     width: fit-content;
 }
 
 button:hover {
-    background-color: beige;
+    background-color: white;
     color: black;
 }
 
@@ -62,7 +83,7 @@ button:hover {
 
 .mainpanel {
     display: flex;
-    /* background-color: rgb(0, 0, 0); */
+    /* background-color: black; */
     flex: 1;
     /* width: 70%; */
     height: 100%;
@@ -71,19 +92,23 @@ button:hover {
 .sidepanel {
     flex-direction: column;
     width: 15%;
-    /* background-color: rgb(0, 0, 0); */
-    border-right-width: 3px;
-    border-color: beige;
-    border-right-style: solid;
+    display: flex;
+    gap: 1rem;
+    /* background-color: rgb(29, 29, 29); */
+    /* border-right-width: 3px; */
+    /* border-color: white;
+    border-right-style: solid;  */
     /* height: 100%; */
     padding: 0.5rem;
 }
 
 #chatpanel {
+    display: flex;
+    gap: 1rem;
     width: 15%;
-    border-left-width: 3px;
-    border-color: beige;
-    border-left-style: solid;
+    /* border-left-width: 3px;
+    border-color: white;
+    border-left-style: solid; */
     padding: 0.5rem;
     overflow: hidden;
 }
@@ -92,14 +117,15 @@ button:hover {
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 3rem;
+    gap: 1rem;
     margin: 0%;
-    padding: 0%;
+    padding: 0.5rem;
     overflow-y: auto;
     list-style: none;
 }
 
 .messageinput {
+    padding: 0.5rem;
     height: 10%;
     flex-direction: column;
     justify-content: space-evenly;
@@ -125,7 +151,9 @@ button:hover {
     width: 15%;
     display: flex;
     flex-direction: column;
-    border: 2px solid beige;
+    /* border: 2px solid white; */
+    background-color: rgb(29, 29, 29);
+    border-radius: 5px;
     padding: 1rem;
     gap: 0.2rem;
 
@@ -136,6 +164,7 @@ button:hover {
     button {
         max-width: 50%;
         align-self: flex-end;
+        font-size: 1rem;
     }
 }
 
@@ -143,9 +172,6 @@ button:hover {
     border: 3px solid red;
 }
 
-.container {
-    display: flex;
-}
 
 .column {
     flex-direction: column;
@@ -163,6 +189,7 @@ button:hover {
 #createlobbymenu {
     display: flex;
     flex-direction: column;
+    /* background-color: rgb(29, 29, 29); */
     /* padding: 0.5rem; */
     gap: 0.3rem;
 

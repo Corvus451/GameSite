@@ -35,11 +35,11 @@ const CreateLobby = () => {
     return (
         <div id="createlobbymenu" className="container">
             <h3 className="sectiontitle">Create Lobby</h3>
-            <div className="container column">
+            <div className="column">
                 <label htmlFor="lobbyname">Lobby name</label>
                 <input type="text" name="lobbyname" id="lobbyname" value={lobbyName} onChange={(e)=> setLobbyName(e.target.value)}/>
             </div>
-            <div className="container inputgroup">
+            <div className="inputgroup">
                 <input type="checkbox" name="ispublic" id="ispublic" checked={isPublic} onChange={()=> setIsPublic(!isPublic)}/>
                 <label htmlFor="ispublic">Public</label>
             </div>

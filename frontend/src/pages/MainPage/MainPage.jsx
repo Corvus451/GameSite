@@ -39,7 +39,13 @@ const MainPage = () => {
 
     const joinLobby = (lobby_id) => {
         console.log("connecting to lobby " + lobby_id);
+        if(ws?.readyState === WebSocket.OPEN) {
+            ws.close(1000, "Disconnected by user");
+            setWs(null);
+        }
+        
         const websocket = new WebSocket(`ws://localhost:3333?lobbyid=${lobby_id}&sessiontoken=${settings.sessionToken}`);
+
         websocket.onopen = () => {
             setWs(websocket);
             console.log("Connected to GameServer");
@@ -48,15 +54,17 @@ const MainPage = () => {
         websocket.onclose = (close) => {
             alert("Disconnected:" + close.reason);
             // close chat panel
+            setWs(null);
         }
     }
 
     return (<>
         <div className="sidepanel">
             <UsernameDisplay /><hr />
-            <CreateLobby/><hr />
-            {!loading && (<><LobbyList handleJoinLobby={joinLobby}/><hr /></>)}
+            <CreateLobby/>
+            {!loading && (<><LobbyList handleJoinLobby={joinLobby}/></>)}
         </div>
+        <hr />
 
         <div className="mainpanel">
 
@@ -68,7 +76,8 @@ const MainPage = () => {
             </nav>
             <Outlet />
         </div>
-        {ws && <ChatPanel ws={ws} setWs={setWs}/>}
+        
+        {ws && <><hr /> <ChatPanel ws={ws} setWs={setWs}/></>}
     </>
     )
 
