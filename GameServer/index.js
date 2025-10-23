@@ -52,9 +52,11 @@ const setup = async () => {
 
         if (!lobby) {
             ws.close(4000, JSON.stringify({ type: "error", message: "Lobby not found" }));
+            return;
         }
         if (!sessionToken) {
             ws.close(4000, JSON.stringify({ type: "error", message: "Mising sessionToken" }));
+            return;
         }
 
         redisClient.redisSetMessageHandler(handleRedisMessage, "lobby:"+lobbyId);
@@ -64,6 +66,7 @@ const setup = async () => {
 
         if (!userData) {
             ws.close(4000, JSON.stringify({ type: "error", message: "Invalid sessionToken" }));
+            return;
         }
 
         // Set these variables for the client
