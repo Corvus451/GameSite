@@ -16,12 +16,7 @@ const MainPage = () => {
 
     useEffect(() => {
 
-        if(settings.loggedIn){
-            console.log("already logged in");
-            return;
-        }
-
-        async function checkToken() {
+         async function checkToken() {
 
             const result = await fetch("/api/auth_v1/refreshtoken", { method: "POST" });
             const data = await result.json();
@@ -33,28 +28,14 @@ const MainPage = () => {
                 setSettings({
                     username: data.user.username,
                     loggedIn: true,
-                    sessionToken: data.sessionToken
+                    sessionToken: data.sessionToken,
+                    sessionExp: data.sessionExp
                 });
                 setLoading(false);
             }
         }
         checkToken();
     }, []);
-
-    const sendMessage = (msg) => {
-
-        const message = {
-            type: "chatmessage",
-            message: msg
-        };
-
-        ws.send(JSON.stringify(message));
-
-    }
-
-    const addChatMessage = (name, message) => {
-
-    }
 
     const joinLobby = (lobby_id) => {
         console.log("connecting to lobby " + lobby_id);
@@ -65,7 +46,7 @@ const MainPage = () => {
             // open chat panel
         }
         websocket.onclose = (close) => {
-            alert("Lobby closed:" + close.reason);
+            alert("Disconnected:" + close.reason);
             // close chat panel
         }
     }
@@ -87,7 +68,7 @@ const MainPage = () => {
             </nav>
             <Outlet />
         </div>
-        {ws && <ChatPanel ws={ws} />}
+        {ws && <ChatPanel ws={ws} setWs={setWs}/>}
     </>
     )
 

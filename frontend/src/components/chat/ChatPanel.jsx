@@ -2,26 +2,20 @@ import { useContext, useState } from "react"
 import { SettingsContext } from "../../main";
 import ChatMessage from "./ChatMessage";
 
-const ChatPanel = ({ ws }) => {
+const ChatPanel = ({ ws, setWs }) => {
 
     const [lobbyName, setLobbyname] = useState("");
     const [settings, setSettings] = useContext(SettingsContext);
-    const [websocket, setWs] = useState(ws);
     const [chatHistory, setChatHistory] = useState([]);
     const [msg, setMsg] = useState("");
 
     const addChatMessage = async (name, message) => {
-        console.log("chat history before:");
-        console.log(chatHistory);
         await setChatHistory([...chatHistory, {username: name, message: message}]);
-        console.log("chat history after:");
-        console.log(chatHistory);
+
     }
 
     const sendMessage = (msg) => {
 
-        console.log("sending message:")
-        console.log(msg);
         const message = {
             type: "chatmessage",
             message: msg
@@ -37,12 +31,13 @@ const ChatPanel = ({ ws }) => {
         const parsed = JSON.parse(message.data);
         if(parsed.type === "error"){
             alert(parsed.message);
-            return;
         }
-        if(parsed.type === "system-message") {
-            addChatMessage(parsed.message, "");
+        else if(parsed.type === "system-message") {
+            addChatMessage("system-message", parsed.message);
         }
-        addChatMessage(parsed.username, parsed.message);
+        else if(parsed.type === "chatmessage"){
+            addChatMessage(parsed.username, parsed.message);
+        }
     }
 
     const disconnect = () => {

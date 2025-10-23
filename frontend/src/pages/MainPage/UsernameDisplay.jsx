@@ -15,11 +15,11 @@ const UsernameDisplay = () => {
 
         if(result.ok){
             setSettings({username: "", loggedIn: false, sessionToken: ""});
-            navigate("/login");
         }
         else{
             alert("fail");
         }
+        navigate("/login");
 
     }
 

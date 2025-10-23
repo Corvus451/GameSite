@@ -14,7 +14,8 @@ const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({
     username: "",
     loggedIn: false,
-    sessionToken: ""
+    sessionToken: "",
+    sessionExp: 0
   });
 
   return (
