@@ -16,7 +16,7 @@ CREATE TABLE passwords (
 );
 
 CREATE TABLE refresh_tokens (
-    token_id serial PRIMARY KEY,
+    -- token_id varchar(10) PRIMARY KEY,
     token varchar(255) NOT NULL,
     user_id integer NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE

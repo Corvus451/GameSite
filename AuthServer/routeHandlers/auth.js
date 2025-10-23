@@ -1,6 +1,7 @@
 const { hashPassword, verifyPassword } = require("../utilities/password.js");
 const dbTool = require("../services/dbTool.js");
 const jwt = require("jsonwebtoken");
+
 const {
     JWT_SESSION_SECRET,
     JWT_REFRESH_SECRET,
@@ -40,8 +41,16 @@ exports.authenticate = async(req, res) => {
 exports.refreshToken = async(req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken;
+
         if(!refreshToken) {
             return unauthorized(res, "Missing refreshToken");
+        }
+
+        // Check if the token is present in the database
+        const dbToken = await dbTool.GetToken(refreshToken);
+
+        if(!dbToken) {
+            return unauthorized(res, "Invalid refreshToken");
         }
 
         let decoded;
@@ -49,16 +58,13 @@ exports.refreshToken = async(req, res) => {
         try {
             decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
         } catch (error) {
+
+            await dbTool.DeleteRefreshToken(refreshToken);
+
             return unauthorized(res, "Invalid refreshToken");
         }
-
-        // Check if the token is present in the database
-        const dbToken = await dbTool.GetTokenById(decoded.user_id);
+ 
         const user = await dbTool.GetUserById(decoded.user_id);
-        if(!dbToken || dbToken.token !== refreshToken) {
-            return unauthorized(res, "Invalid refreshToken");
-        }
-
         // Generate the new session token
         const sessionToken = jwt.sign(user, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
 
@@ -165,22 +171,30 @@ exports.login = async(req, res) => {
 
 exports.logout = async(req, res) => {
     try {
-        const token = req.cookies.refreshToken;
+        const refreshToken = req.cookies.refreshToken;
 
-        if(!token){
+        if(!refreshToken){
             return unauthorized(res, "Missing refreshToken");
+        }
+
+        // Check if the token is present in the database
+        const dbToken = await dbTool.GetToken(refreshToken);
+
+        if(!dbToken) {
+            return unauthorized(res, "Invalid refreshToken");
         }
 
         let decoded;
         // Get user id from token if it is valid
         try {
-            decoded = jwt.verify(token, JWT_REFRESH_SECRET);
+            decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
         } catch (error) {
+            await dbTool.DeleteRefreshToken(refreshToken);
             return unauthorized(res, "Invalid refreshToken");
         }
 
         // Delete token from database
-        await dbTool.DeleteRefreshToken(decoded.user_id);
+        await dbTool.DeleteRefreshToken(refreshToken);
 
         // Delete token from cookies
         res.clearCookie("refreshToken", {
