@@ -1,16 +1,17 @@
 const { AUTH_ENDPOINT, AUTH_HOST } = require("../config/config.js");
 const { internalServerError, unauthorized } = require("../utilities/errorHandlers.js");
 
-const authenticate = async (token) => {
+const authenticate = async (token,) => {
 
     const result = await fetch(AUTH_HOST + AUTH_ENDPOINT + "/authenticate", {
         method: "POST",
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'authorization': 'Bearer ' + token
         },
-        body: JSON.stringify({
-            sessionToken: token
-        })
+        // body: JSON.stringify({
+        //     sessionToken: token
+        // })
     });
 
     // Throw error if the token is invalid

@@ -14,7 +14,7 @@ const { User } = require("../models/user.js");
 
 exports.authenticate = async(req, res) => {
     try {
-        const token = req.body.sessionToken;
+        const token = req.headers.authorization?.split(' ')[1];
 
         if(!token) {
             return badRequest(res, "Missing sessionToken");
@@ -68,10 +68,14 @@ exports.refreshToken = async(req, res) => {
         // Generate the new session token
         const sessionToken = jwt.sign(user, JWT_SESSION_SECRET, {expiresIn: JWT_SESSION_EXPIRES_IN});
 
+        const tokenExp = jwt.decode(sessionToken).exp * 1000;
+
         return res.status(200).json({
             success: true,
+            message: "Token refreshed successfully",
             sessionToken: sessionToken,
-            user: user
+            user: user,
+            tokenExp: tokenExp
         });
 
     } catch (error) {
@@ -111,12 +115,15 @@ exports.register = async(req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
         });
 
+        const tokenExp = jwt.decode(sessionToken).exp * 1000;
+
         // Send user data and session token in payload
         res.status(201).json({
             success: true,
             message: "Successfully registered",
             sessionToken: sessionToken,
-            user: createdUser
+            user: createdUser,
+            tokenExp: tokenExp
         });
 
     } catch (error) {
@@ -156,12 +163,15 @@ exports.login = async(req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
         });
 
+        const tokenExp = jwt.decode(sessionToken).exp * 1000;
+
         // Send user data and session token in payload
         res.status(201).json({
             success: true,
             message: "Login successful",
             sessionToken: sessionToken,
-            user: user
+            user: user,
+            tokenExp: tokenExp
         });
 
     } catch (error) {
