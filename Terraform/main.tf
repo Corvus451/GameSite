@@ -57,8 +57,23 @@ resource "terraform_data" "sql_init" {
 
   provisioner "remote-exec" {
     inline = [
-       "PGPASSWORD=${var.db_password} psql -h ${module.database-main.database_address} -U ${var.db_username} -d auth -f /home/ubuntu/init.sql",
+       "PGPASSWORD=${var.db_password} psql -h ${module.database-auth.database_address} -U ${var.db_username} -d auth -f /home/ubuntu/init.sql",
     ]
   }
+}
+
+module "sg_redis" {
+  source = "./modules/security_group"
+  vpc_id = module.vpc.vpc_id
+  name = "redis-sg"
+  port = 6379
+  cidr_block = module.vpc.cidr_block
+}
+
+module "redis" {
+  source = "./modules/redis"
+  redis_name = "${var.project_name}rediscache"
+  redis_subnet_ids = [ module.vpc.subnet_private_id, module.vpc.subnet_private_a_id ]
+  redis_security_group_ids = [ module.sg_redis.security_group_id ]
 }
 
