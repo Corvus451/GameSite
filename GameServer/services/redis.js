@@ -33,8 +33,6 @@ exports.redisSetMessageHandler = (handler, channel) => {
     }
     subscribedChannels.add(channel);
     redisSubscriber.subscribe(channel, (message)=> {
-        console.log("Message received:");
-        console.log(message);
         handler(message, channel);
     })
 }

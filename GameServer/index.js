@@ -82,12 +82,18 @@ const setup = async () => {
             clients.push(ws);
         }
 
+        ws.send(JSON.stringify({
+            type: "lobbydata",
+            lobby: lobby
+        }));
+
         const message = {
             type: "system-message",
             message: userData.username + " connected."
         };
 
         broadcastMessage(clientLists.get(lobbyId), null, message);
+        redisClient.redisAddChatMessage(lobbyId, message);
 
         ws.on("message", (message) => {
             const parsed = JSON.parse(message);
