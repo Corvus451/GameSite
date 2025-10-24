@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { SettingsContext } from "../../main";
 import ChatMessage from "./ChatMessage";
 
@@ -8,10 +8,23 @@ const ChatPanel = ({ ws, setWs }) => {
     const [settings, setSettings] = useContext(SettingsContext);
     const [chatHistory, setChatHistory] = useState([]);
     const [msg, setMsg] = useState("");
+    const chatRef = useRef(null);
+    const [lobbyId, setLobbyId] = useState("");
+
+    useEffect(()=> {
+        if(chatRef.current){
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+        }
+    }, [chatHistory]);
 
     const addChatMessage = async (name, message) => {
-        await setChatHistory([...chatHistory, { username: name, message: message }]);
+      setChatHistory(prev => [...prev, { username: name, message: message }]);
 
+    }
+
+    const addchatMessages = async (messages) => {
+        console.log("setting chat history from lobbydata");
+        setChatHistory(prev => [...prev, ...messages.map(m => ({username: m.username || "system-message", message: m.message}))]);
     }
 
     const sendMessage = (msg) => {
@@ -43,6 +56,13 @@ const ChatPanel = ({ ws, setWs }) => {
         else if (parsed.type === "chatmessage") {
             addChatMessage(parsed.username, parsed.message);
         }
+        else if(parsed.type === "lobbydata") {
+            console.log("lobby data:");
+            console.log(parsed.lobby);
+            addchatMessages(parsed.lobby.messages);
+            setLobbyId(parsed.lobby.lobby_id);
+        }
+        document.querySelector(".chathistory").scrollTo(0, document.querySelector(".chathistory").scrollHeight);
     }
 
     const disconnect = () => {
@@ -53,8 +73,9 @@ const ChatPanel = ({ ws, setWs }) => {
     return (
         <div id="chatpanel" className="column">
             <h3 className="sectiontitle">Lobby Chat</h3>
+            <span>{lobbyId}</span>
             <hr />
-            <ul className="chathistory container">
+            <ul className="chathistory container" ref={chatRef}>
                 {chatHistory.map((message, i) =>
                     <ChatMessage key={i} name={message.username} message={message.message} />
                 )}

@@ -39,7 +39,7 @@ const CreateLobby = () => {
                 <label htmlFor="lobbyname">Lobby name</label>
                 <input type="text" name="lobbyname" id="lobbyname" value={lobbyName} onChange={(e)=> setLobbyName(e.target.value)}/>
             </div>
-            <div className="inputgroup">
+            <div className="aic">
                 <input type="checkbox" name="ispublic" id="ispublic" checked={isPublic} onChange={()=> setIsPublic(!isPublic)}/>
                 <label htmlFor="ispublic">Public</label>
             </div>

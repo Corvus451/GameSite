@@ -37,6 +37,19 @@ const MainPage = () => {
         checkToken();
     }, []);
 
+    const logout = async ()=> {
+        const result = await fetch("/api/auth_v1/logout", {
+            method: "POST"
+        });
+        if(ws?.readyState === WebSocket.OPEN) {
+            ws.close(1000, "Disconnected by user");
+            setWs(null);
+        }
+        setSettings({});
+        navigate("/login");
+
+    }
+
     const joinLobby = (lobby_id) => {
         console.log("connecting to lobby " + lobby_id);
         if(ws?.readyState === WebSocket.OPEN) {
@@ -60,7 +73,7 @@ const MainPage = () => {
 
     return (<>
         <div className="sidepanel">
-            <UsernameDisplay /><hr />
+            <UsernameDisplay handlelogout={logout}/><hr />
             <CreateLobby/>
             {!loading && (<><LobbyList handleJoinLobby={joinLobby}/></>)}
         </div>

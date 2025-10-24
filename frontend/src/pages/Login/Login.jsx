@@ -28,12 +28,12 @@ const Login = () => {
 
         const data = await result.json();
 
-        if(result.ok){
+        if (result.ok) {
             // setSettings({
             //     ...settings, username: data.user.username, sessionToken: data.sessionToken, loggedIn: true
             // });
             navigate("/");
-        }else{
+        } else {
             alert(data.message);
         }
         console.log(result);
@@ -45,9 +45,9 @@ const Login = () => {
             <div id="registerForm" className="registerForm">
                 <h3>Login</h3>
                 <label htmlFor="username">Username</label><br />
-                <input type="text" name="username" id="username" onChange={(e)=> setUsername(e.target.value)}/><br />
+                <input type="text" name="username" id="username" onChange={(e) => setUsername(e.target.value)} /><br />
                 <label htmlFor="password">Password</label><br />
-                <input type="password" name="password" id="password" onChange={(e)=> setPassword(e.target.value)}/><br />
+                <input type="password" name="password" id="password" onChange={(e) => setPassword(e.target.value)} /><br />
                 <button onClick={login}>Login</button>
                 <Link to="/register">Register</Link>
             </div>
