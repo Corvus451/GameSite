@@ -1,3 +1,3 @@
-output "redis_endpoint" {
-  value = aws_elasticache_serverless_cache.this.endpoint
+output "redis_address" {
+  value = aws_elasticache_serverless_cache.this.endpoint[0].address
 }

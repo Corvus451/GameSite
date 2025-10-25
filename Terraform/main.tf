@@ -195,7 +195,7 @@ module "api-deployment" {
     },
     {
       name = "REDIS_HOST"
-      value = module.redis.redis_endpoint.address
+      value = module.redis.redis_address
     },
    ]
 }
@@ -227,7 +227,7 @@ module "game-deployment" {
     },
     {
       name = "REDIS_HOST"
-      value = module.redis.redis_endpoint.address
+      value = module.redis.redis_address
     },
    ]
 }
