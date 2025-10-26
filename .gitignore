@@ -5,3 +5,5 @@ secret.auto.tfvars
 secret.tfvars
 terraform.tfstate*
 .env
+static/
+dist/
