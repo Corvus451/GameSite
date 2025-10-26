@@ -1,4 +1,4 @@
-const { REDIS_HOST, REDIS_PORT} = require("../config/config.js");
+const { REDIS_HOST, REDIS_PORT, DEVENV} = require("../config/config.js");
 const { createClient } = require("redis");
 
 const subscribedChannels = new Set();
@@ -7,6 +7,7 @@ const redisClient = createClient({
         socket: {
             host: REDIS_HOST,
             port: REDIS_PORT,
+            ...(DEVENV === "yes" ? {} : { tls: true })
         }
 });
 
@@ -33,6 +34,7 @@ exports.redisSetMessageHandler = (handler, channel) => {
     }
     subscribedChannels.add(channel);
     redisSubscriber.subscribe(channel, (message)=> {
+        console.log("new message published");
         handler(message, channel);
     })
 }

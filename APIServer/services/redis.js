@@ -1,10 +1,11 @@
-const { REDIS_HOST, REDIS_PORT} = require("../config/config.js");
+const { REDIS_HOST, REDIS_PORT, DEVENV} = require("../config/config.js");
 const { createClient } = require("redis");
 
 const redisClient = createClient({
         socket: {
             host: REDIS_HOST,
             port: REDIS_PORT,
+            ...(DEVENV === "yes" ? {} : { tls: true })
         }
 });
 
@@ -12,6 +13,7 @@ redisClient.on("error", (error)=> console.error("Redis error:", error));
 
 exports.connectRedis = async () => {
     if(!redisClient.isOpen) {
+        console.log("Connecting to redis");
         await redisClient.connect();
         console.log("Connected to redis");
     }
