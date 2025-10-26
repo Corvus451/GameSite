@@ -30,31 +30,49 @@ module "bastion" {
 }
 
 resource "aws_ecr_repository" "ecr_auth" {
-  name = "authserver"
+  name = "${var.project_name}authserver"
 }
 
 resource "aws_ecr_repository" "ecr_api" {
-  name = "apiserver"
+  name = "${var.project_name}apiserver"
 }
 
 resource "aws_ecr_repository" "ecr_game" {
-  name = "gameserver"
+  name = "${var.project_name}gameserver"
+}
+
+resource "aws_ecr_repository" "webserver" {
+  name = "${var.project_name}webserver"
+}
+
+resource "terraform_data" "build-frontend" {
+  provisioner "local-exec" {
+    command = <<EOT
+    cd ../frontend
+    npm i
+    npm run build
+    cp -r ./dist/* ../Webserver/static
+    EOT
+  }
 }
 
 resource "terraform_data" "push-images" {
-  depends_on = [ aws_ecr_repository.ecr_api, aws_ecr_repository.ecr_auth, aws_ecr_repository.ecr_game]
+  depends_on = [ aws_ecr_repository.ecr_api, aws_ecr_repository.ecr_auth, aws_ecr_repository.ecr_game, aws_ecr_repository.webserver]
    provisioner "local-exec" {
     command = <<EOT
     aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com
-    docker build -t apiserver:latest ../APIServer
-    docker tag apiserver:latest ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/apiserver:latest
-    docker push ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/apiserver:latest
-    docker build -t authserver:latest ../AuthServer
-    docker tag authserver:latest ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/authserver:latest
-    docker push ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/authserver:latest
-    docker build -t gameserver:latest ../GameServer
-    docker tag gameserver:latest ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/gameserver:latest
-    docker push ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/gameserver:latest
+    docker build -t ${var.project_name}apiserver:latest ../APIServer
+    docker tag ${var.project_name}apiserver:latest ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}apiserver:latest
+    docker push ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}apiserver:latest
+    docker build -t ${var.project_name}authserver:latest ../AuthServer
+    docker tag ${var.project_name}authserver:latest ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}authserver:latest
+    docker push ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}authserver:latest
+    docker build -t ${var.project_name}gameserver:latest ../GameServer
+    docker tag ${var.project_name}gameserver:latest ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}gameserver:latest
+    docker push ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}gameserver:latest
+    docker build -t ${var.project_name}webserver:latest ../Webserver
+    docker tag ${var.project_name}webserver:latest ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}webserver:latest
+    docker push ${var.aws_account_id}.dkr.ecr.${var.region}.amazonaws.com/${var.project_name}webserver:latest
     EOT
   }
 }
@@ -138,7 +156,7 @@ module "auth-deployment" {
     value = "5432"
   },
   {
-    name = "PG_DATABASE"
+    name = "PGDATABASE"
     value = "auth"
   },
   {
@@ -198,6 +216,17 @@ module "api-deployment" {
       value = module.redis.redis_address
     },
    ]
+}
+
+module "webserver" {
+  source = "./modules/deployment"
+  depends_on = [ module.eks ]
+  port = 80
+  svc_name = "webserversvc"
+  deployment_name = "webserver"
+  replica_count = 2
+  image = aws_ecr_repository.webserver.repository_url
+  env_vars = []
 }
 
 module "game-deployment" {
@@ -278,6 +307,18 @@ resource "kubernetes_ingress_v1" "ingress" {
               name = module.game-deployment.svc_name
               port {
                 number = 3333
+              }
+            }
+          }
+        }
+        path {
+          path = "/"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = "webserversvc"
+              port {
+                number = 80
               }
             }
           }
