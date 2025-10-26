@@ -57,7 +57,7 @@ const MainPage = () => {
             setWs(null);
         }
         
-        const websocket = new WebSocket(`ws://localhost:3333?lobbyid=${lobby_id}&sessiontoken=${settings.sessionToken}`);
+        const websocket = new WebSocket(`ws://${window.location.host}/game?lobbyid=${lobby_id}&sessiontoken=${settings.sessionToken}`);
 
         websocket.onopen = () => {
             setWs(websocket);
