@@ -10,6 +10,7 @@ const ChatPanel = ({ ws, setWs }) => {
     const [msg, setMsg] = useState("");
     const chatRef = useRef(null);
     const [lobbyId, setLobbyId] = useState("");
+    const [sending, setSending] = useState(false);
 
     useEffect(()=> {
         if(chatRef.current){
@@ -36,7 +37,9 @@ const ChatPanel = ({ ws, setWs }) => {
 
         ws.send(JSON.stringify(message));
 
-        addChatMessage(settings.username, msg);
+        setSending(true);
+
+        // addChatMessage(settings.username, msg);
 
     }
 
@@ -47,6 +50,9 @@ const ChatPanel = ({ ws, setWs }) => {
 
     ws.onmessage = (message) => {
         const parsed = JSON.parse(message.data);
+
+        console.log("Message received");
+
         if (parsed.type === "error") {
             alert(parsed.message);
         }
@@ -55,6 +61,9 @@ const ChatPanel = ({ ws, setWs }) => {
         }
         else if (parsed.type === "chatmessage") {
             addChatMessage(parsed.username, parsed.message);
+            if(sending && parsed.username === settings.username) {
+                setSending(false);
+            }
         }
         else if(parsed.type === "lobbydata") {
             console.log("lobby data:");
@@ -82,7 +91,10 @@ const ChatPanel = ({ ws, setWs }) => {
             </ul>
             <div className="container messageinput">
                 <input type="text" onChange={(e) => setMsg(e.target.value)} />
-                <button onClick={() => sendMessage(msg)}>Send</button>
+                <div className="row justify-sb flex">
+                    <button onClick={() => sendMessage(msg)}>Send</button>
+                    {sending && <span>Sending...</span>}
+                </div>
                 <button onClick={disconnect}>Disconnect</button>
             </div>
         </div>

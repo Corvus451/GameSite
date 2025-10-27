@@ -1,5 +1,6 @@
 const { AUTH_ENDPOINT, AUTH_HOST } = require("../config/config.js");
 
+// Authenticate clients
 exports.authenticate = async (token) => {
 
     const result = await fetch(AUTH_HOST + AUTH_ENDPOINT + "/authenticate", {
