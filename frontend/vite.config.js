@@ -17,6 +17,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
+      '/game': {
+        ws: true,
+        target: 'ws://localhost:80',
+        changeOrigin: true,
+        secure: false,
       }
     },
   },
