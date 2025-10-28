@@ -7,6 +7,7 @@ module "vpc" {
 
 module "eks" {
   source = "./modules/eks"
+  instance_types = ["t3.xlarge"]
   vpc_id = module.vpc.vpc_id
   project_name = var.project_name
   region = var.region
@@ -51,6 +52,7 @@ resource "terraform_data" "build-frontend" {
     cd ../frontend
     npm i
     npm run build
+    rm -r ../Webserver/static/*
     cp -r ./dist/* ../Webserver/static
     EOT
   }
@@ -132,7 +134,7 @@ module "auth-deployment" {
   port = 3001
   svc_name = "authsvc"
   deployment_name = "authserver"
-  replica_count = 3
+  replica_count = 2
   image = aws_ecr_repository.ecr_auth.repository_url
   env_vars = [
   {
@@ -188,7 +190,7 @@ module "api-deployment" {
   port = 3000
   svc_name = "apisvc"
   deployment_name = "apiserver"
-  replica_count = 3
+  replica_count = 2
   image = aws_ecr_repository.ecr_api.repository_url
   env_vars = [ 
     {
@@ -235,7 +237,7 @@ module "game-deployment" {
   port = 3333
   svc_name = "gamesvc"
   deployment_name = "gameserver"
-  replica_count = 3
+  replica_count = 2
   image = aws_ecr_repository.ecr_game.repository_url
   env_vars = [ 
     {
@@ -316,7 +318,7 @@ resource "kubernetes_ingress_v1" "ingress" {
           path_type = "Prefix"
           backend {
             service {
-              name = "webserversvc"
+              name = module.webserver.svc_name
               port {
                 number = 80
               }

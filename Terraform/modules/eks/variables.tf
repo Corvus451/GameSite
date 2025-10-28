@@ -24,3 +24,7 @@ variable "configure_kubectl" {
   type = bool
   default = true
 }
+
+variable "instance_types" {
+  type = list(string)
+}
