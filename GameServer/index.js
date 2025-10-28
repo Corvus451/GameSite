@@ -15,6 +15,11 @@ const setup = async () => {
 
     const wss = new WebSocket.Server({ port: SERVER_PORT });
 
+    const heartBeat = (ws) => {
+        console.log("Heartbeat is called, client alive: " + ws.isAlive);
+        ws.isAlive = true;
+    }
+
     // Function to call when an other server published something on redis
     const handleRedisMessage = (parsed, channel) => {
 
@@ -76,6 +81,7 @@ const setup = async () => {
         // Set these variables for the client
         ws.userData = userData;
         ws.lobby_id = lobby.lobby_id;
+        ws.isAlive = true;
 
         // Get the client list for this lobby.
         const clients = clientLists.get(lobbyId);
@@ -101,7 +107,6 @@ const setup = async () => {
         broadcastMessage(clientLists.get(lobbyId), null, message);
         redisClient.redisAddChatMessage(lobbyId, message);
 
-
         ws.on("message", (message) => {
 
             const parsed = JSON.parse(message);
@@ -124,6 +129,8 @@ const setup = async () => {
 
         });
 
+        ws.on("pong", () => heartBeat(ws));
+
         ws.on("close", () => {
             const message = {
                 type: "system-message",
@@ -136,6 +143,23 @@ const setup = async () => {
             redisClient.redisAddChatMessage(ws.lobby_id, message);
         });
     });
+
+    const interval = setInterval(() => {
+        
+        wss.clients.forEach((client) => {
+
+            console.log("Checking client " + client.userData.username);
+            console.log(client.isAlive);
+
+            if(!client.isAlive){
+                console.log("Client timed out.");
+                return client.terminate();
+            }
+
+            client.isAlive = false;
+            client.ping();
+        })
+    }, 25000);
 }
 
 setup();
