@@ -1,25 +1,52 @@
+const { User } = require("../models/user.js");
 const { query } = require("./db.js");
+// const { nanoid } = require("nanoid");
 
-exports.Createuser = async () => {
-
+exports.CreateUser = async (username, passwordHash) => {
+    const result = await query("INSERT INTO users(username) VALUES($1) RETURNING *", [username]);
+    await query("INSERT INTO passwords(user_id, password_hash) VALUES($1, $2)", [result[0].user_id, passwordHash]);
+    return User(result[0]);
 }
 
-exports.GetUserByName = async () => {
+exports.getUserByName = async(username) => {
+    const result = await query("SELECT * FROM users WHERE username = $1", [username]);
+    if(result[0] == null){
+        return null;
+    }
     
+    return User(result[0]);
 }
 
-exports.GetUserById = async () => {
-    
+exports.GetUserById = async (id) => {
+    const result = await query("SELECT * FROM users WHERE user_id = $1", [id]);
+    if(result[0] == null){
+        return null;
+    }
+    return User(result[0]);
 }
 
-exports.GetHashedPasswordById = async () => {
-    
+exports.GetHashedPasswordById = async (id) => {
+    const result = await query("SELECT password_hash FROM passwords WHERE user_id = $1", [id]);
+    return result[0].password_hash;
 }
 
-exports.CreateRefreshToken = async () => {
-    
+exports.DeleteRefreshToken = async (token) => {
+    const result = await query("DELETE FROM refresh_tokens WHERE token = $1 RETURNING *", [token]);
+    return result[0];
 }
 
-exports.DeleteRefreshToken = async () => {
-    
+exports.GetTokensByUserId = async (id) => {
+    const result = await query("SELECT * FROM refresh_tokens WHERE user_id = $1", [id]);
+    return result;
+}
+
+exports.StoreRefreshToken = async (user_id, token) => {
+    // const token_id = nanoid(10);
+    const result = await query("INSERT INTO refresh_tokens(user_id, token) VALUES($1, $2)", [user_id, token]);
+    return result[0];
+}
+
+exports.GetToken = async (token) => {
+    const result = await query("SELECT * FROM refresh_tokens WHERE token = $1", [token]);
+    return result[0];
 }

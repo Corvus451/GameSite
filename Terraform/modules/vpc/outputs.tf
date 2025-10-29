@@ -55,7 +55,7 @@ output "subnet_private_ids" {
 output "subnet_ids" {
   value = [
     aws_subnet.public.id,
-    # aws_subnet.public-a.id,
+    aws_subnet.public-a.id,
     aws_subnet.private.id,
     aws_subnet.private-a.id
   ]

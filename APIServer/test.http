@@ -1,0 +1,18 @@
+### CREATE LOBBY
+GET http://localhost:3000/api/createlobby
+Cookie: refreshToken=
+authorization: Bearer <token>
+Content-Type: application/json
+
+{
+    "lobby_name": "",
+    "public": ""
+}
+
+### TEST SERVER HEALTH
+GET http://localhost:3000/api/health
+
+
+### GET LOBBY LIST
+GET http://localhost:3000/api/lobbies
+authorization: Bearer <token>

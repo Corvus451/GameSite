@@ -1,0 +1,103 @@
+const { REDIS_HOST, REDIS_PORT, DEVENV} = require("../config/config.js");
+const { createClient } = require("redis");
+const os = require("os");
+
+const HOSTNAME = os.hostname();
+
+// Track which channels this server has subscribed to.
+const subscribedChannels = new Set();
+
+const redisClient = createClient({
+        socket: {
+            host: REDIS_HOST,
+            port: REDIS_PORT,
+            ...(DEVENV === "yes" ? {} : { tls: true })
+        }
+});
+
+const redisSubscriber = redisClient.duplicate();
+
+redisClient.on("error", (error)=> console.error("Redis Client error:", error));
+redisSubscriber.on("error", (error)=> console.error("Redis Subscriber error:", error));
+
+exports.connectRedis = async () => {
+    if(!redisClient.isOpen) {
+        await redisClient.connect();
+        console.log("Client connected to redis");
+    }
+    if(!redisSubscriber.isOpen) {
+        await redisSubscriber.connect();
+        console.log("Subscriber connected to redis");
+    }
+}
+
+// Subscribe to a redis channel and set a handler function for the incoming publishes.
+exports.redisSetMessageHandler = (handler, channel) => {
+
+    if(subscribedChannels.has(channel)) { // Avoid subscribing to the same channel multiple times.
+        return;
+    }
+
+    subscribedChannels.add(channel);
+
+    redisSubscriber.subscribe(channel, (message)=> {
+
+        
+        const parsed = JSON.parse(message);
+
+        // console.log("HOSTNAME: " + parsed.hostname);
+        
+        if(parsed.host !== HOSTNAME) { // ignore the publish if it's sent by this server.
+            console.log("new message published");
+            handler(parsed, channel);
+        }
+    });
+}
+
+exports.redisUnsetMessageHandler = (channel) => {
+    redisSubscriber.unsubscribe(channel);
+    subscribedChannels.delete(channel);
+}
+
+exports.redisGetLobbyById = async (id) => {
+    const lobby = await redisClient.json.get("lobby:"+id, "$") || null;
+    return lobby;
+}
+
+exports.redisDeleteLobby = async (lobby_id) => {
+
+    //Delete the lobby object from redis.
+    const result = await redisClient.json.del("lobby:"+lobby_id);
+
+    //Delete the lobby reference from the redis list.
+    await redisClient.lRem("lobby:list", 0, "lobby:"+lobby_id);
+
+    //Publish lobby deletion for the other servers. Add hostname so the server can ignore it's own publishes.
+    await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "lobbydeleted",  host: HOSTNAME ,lobby_id: lobby_id}));
+    return result;
+}
+
+// Publish message to redis for the other servers. 
+exports.redisAddChatMessage = async (lobby_id, message) => {
+
+    //Add the chat message to the redis lobby object
+    const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.messages", message);
+
+    //Publish The message on the right channel. Add hostname so the server can ignore it's own publishes.
+    await redisClient.publish("lobby:"+lobby_id, JSON.stringify({lobby_id: lobby_id, host: HOSTNAME, message: message}));
+    return result;
+}
+
+// exports.redisCreateLobby = async (lobby) => {
+//     const result = await redisClient.json.set(`lobby:${lobby.lobby_id}`, "$", lobby);
+//     await redisClient.rPush("lobby:list", "lobby:"+lobby.lobby_id);
+//     return result;
+// }
+
+// exports.redisGetPublicLobbies = async () => {
+//     const keys = await redisClient.lRange("lobby:list", 0, -1);
+//     const lobbies = await Promise.all(keys.map(k => redisClient.json.get(k)));
+//     console.log(lobbies);
+//     const result = lobbies.filter(l => l.public === true);
+//     return result;
+// }
