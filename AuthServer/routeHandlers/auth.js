@@ -11,6 +11,11 @@ const {
 const { internalServerError, badRequest, conflict, unauthorized } = require("../utilities/errorHandlers.js");
 const { User } = require("../models/user.js");
 
+exports.healthCheck = async (req, res) => {
+    console.log("Health endpoint reached.");
+    res.sendStatus(200);
+}
+
 
 exports.authenticate = async(req, res) => {
     try {

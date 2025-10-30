@@ -54,3 +54,9 @@ exports.getPublicLobbies = async (req, res) => {
     }
 }
 
+exports.healthCheck = async (req, res) => {
+    console.log("Health endpoint reached.");
+    res.status(200).send("OK");
+    // res.sendStatus(200);
+}
+
