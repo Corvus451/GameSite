@@ -1,11 +1,22 @@
 const { REDIS_HOST, REDIS_PORT, DEVENV} = require("../config/config.js");
 const { createClient } = require("redis");
 
+const rcStrategy = (retries) => {
+
+    if(retries > 5) {
+        console.log("Cannot connect to redis server, exiting...");
+        process.exit(1);
+    }
+
+    return 1000;
+}
+
 const redisClient = createClient({
         socket: {
             host: REDIS_HOST,
             port: REDIS_PORT,
-            ...(DEVENV === "yes" ? {} : { tls: true })
+            ...(DEVENV === "yes" ? {} : { tls: true }),
+            reconnectStrategy: rcStrategy
         }
 });
 
