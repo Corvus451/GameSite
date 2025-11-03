@@ -129,13 +129,14 @@ module "redis" {
 }
 
 module "auth-deployment" {
-  depends_on = [ module.database-auth, module.eks ]
+  depends_on = [ module.database-auth, module.eks, terraform_data.push-images ]
   source = "./modules/deployment"
   port = 3001
   svc_name = "authsvc"
   deployment_name = "authserver"
   replica_count = 2
   image = aws_ecr_repository.ecr_auth.repository_url
+  probe_port = 3001
   env_vars = [
   {
     name = "SERVER_PORT"
@@ -186,12 +187,13 @@ module "auth-deployment" {
 
 module "api-deployment" {
   source = "./modules/deployment"
-  depends_on = [ module.eks, module.redis, module.auth-deployment ]
+  depends_on = [ module.eks, module.redis, module.auth-deployment, terraform_data.push-images ]
   port = 3000
   svc_name = "apisvc"
   deployment_name = "apiserver"
   replica_count = 2
   image = aws_ecr_repository.ecr_api.repository_url
+  probe_port = 3000
   env_vars = [ 
     {
       name = "SERVER_PORT"
@@ -222,23 +224,25 @@ module "api-deployment" {
 
 module "webserver" {
   source = "./modules/deployment"
-  depends_on = [ module.eks ]
+  depends_on = [ module.eks, aws_ecr_repository.webserver, terraform_data.push-images ]
   port = 80
   svc_name = "webserversvc"
   deployment_name = "webserver"
   replica_count = 2
   image = aws_ecr_repository.webserver.repository_url
+  probe_port = 81
   env_vars = []
 }
 
 module "game-deployment" {
   source = "./modules/deployment"
-  depends_on = [ module.eks, module.redis, module.auth-deployment ]
+  depends_on = [ module.eks, module.redis, module.auth-deployment, terraform_data.push-images ]
   port = 3333
   svc_name = "gamesvc"
   deployment_name = "gameserver"
   replica_count = 2
   image = aws_ecr_repository.ecr_game.repository_url
+  probe_port = 8080
   env_vars = [ 
     {
       name = "SERVER_PORT"
@@ -260,6 +264,10 @@ module "game-deployment" {
       name = "REDIS_HOST"
       value = module.redis.redis_address
     },
+    {
+      name = "HTTP_PORT",
+      value = "8080"
+    }
    ]
 }
 
