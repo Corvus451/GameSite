@@ -18,6 +18,10 @@ variable "image" {
 type = string
 }
 
+variable "probe_port" {
+  type = number
+}
+
 variable "env_vars" {
   type = list(object({
     name = string

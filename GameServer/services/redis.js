@@ -4,6 +4,16 @@ const os = require("os");
 
 const HOSTNAME = os.hostname();
 
+const rcStrategy = (retries) => {
+
+    if(retries > 5) {
+        console.log("Cannot connect to redis server, exiting...");
+        process.exit(1);
+    }
+
+    return 1000;
+}
+
 // Track which channels this server has subscribed to.
 const subscribedChannels = new Set();
 
@@ -11,7 +21,8 @@ const redisClient = createClient({
         socket: {
             host: REDIS_HOST,
             port: REDIS_PORT,
-            ...(DEVENV === "yes" ? {} : { tls: true })
+            ...(DEVENV === "yes" ? {} : { tls: true }),
+            reconnectStrategy: rcStrategy
         }
 });
 

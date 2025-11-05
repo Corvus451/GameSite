@@ -55,20 +55,17 @@ resource "kubernetes_deployment_v1" "this" {
             container_port = var.port
           }
 
-        #   liveness_probe {
-        #     http_get {
-        #       path = "/"
-        #       port = 80
+          liveness_probe {
+            http_get {
+              path = "/health"
+              port = var.probe_port
+            }
 
-        #       http_header {
-        #         name  = "X-Custom-Header"
-        #         value = "Awesome"
-        #       }
-        #     }
-
-        #     initial_delay_seconds = 3
-        #     period_seconds        = 3
-        #   }
+            initial_delay_seconds = 10
+            period_seconds        = 10
+            timeout_seconds       = 5 
+            failure_threshold     = 3 
+          }
         }
       }
     }

@@ -1,12 +1,24 @@
 const WebSocket = require("ws");
 const { URL } = require("url");
+const http = require("http");
 const redisClient = require("./services/redis.js");
 const { authenticate } = require("./services/auth.js");
 const { broadcastMessage } = require("./gamelogic/chat.js");
-const { SERVER_PORT } = require("./config/config.js");
+const { SERVER_PORT, HTTP_PORT } = require("./config/config.js");
 
 
 const setup = async () => {
+
+    const httpServer = http.createServer((req, res) => {
+        if(req.url === "/health") {
+            console.log("Health endpoint reached.");
+            res.writeHead(200, {'content-type': 'text/plain'});
+            res.end("OK");
+        } else {
+            res.writeHead(404);
+            res.end();
+        }
+    });
 
     // Store connected clients in arrays that can be referenced by lobby_id
     const clientLists = new Map();
@@ -160,6 +172,12 @@ const setup = async () => {
             client.ping();
         })
     }, 25000);
+
+    httpServer.listen(HTTP_PORT, () => {
+        console.log(`HTTP server listening on port ${HTTP_PORT}`);
+    });
+
+    console.log(`WebSocket server listening on port ${SERVER_PORT}`);
 }
 
 setup();
