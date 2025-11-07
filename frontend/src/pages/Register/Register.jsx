@@ -9,7 +9,6 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
     const [settings, setSettings] = useContext(SettingsContext)
-    // const [invalid, setInvalid] = useState(false);
 
     const navigate = useNavigate();
 
@@ -30,9 +29,6 @@ const Register = () => {
         const data = await result.json();
 
         if(result.ok){
-            // setSettings({
-            //     ...settings, username: data.user.username, sessionToken: data.sessionToken, loggedIn: true
-            // });
             navigate("/");
         }else{
             alert(data.message);

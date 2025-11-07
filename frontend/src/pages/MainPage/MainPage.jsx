@@ -5,12 +5,14 @@ import UsernameDisplay from "./UsernameDisplay";
 import CreateLobby from "./CreateLobby";
 import LobbyList from "../../components/lobbyList/LobbyList";
 import ChatPanel from "../../components/chat/ChatPanel";
+import LobbyMenu from "../../components/LobbyMenu/LobbyMenu";
 
 const MainPage = () => {
 
     const [settings, setSettings] = useContext(SettingsContext);
     const [loading, setLoading] = useState(true);
     const [ws, setWs] = useState(null);
+    const [lobbyData, setLobbyData] = useState(null);
 
     const navigate = useNavigate();
 
@@ -27,6 +29,7 @@ const MainPage = () => {
             else {
                 setSettings({
                     username: data.user.username,
+                    user_id: data.user.user_id,
                     loggedIn: true,
                     sessionToken: data.sessionToken,
                     sessionExp: data.sessionExp
@@ -50,6 +53,12 @@ const MainPage = () => {
 
     }
 
+    const handleDeleteLobby = () => {
+        if(lobbyData?.owner_id === settings.user_id){
+            ws?.send(JSON.stringify({type: "lobby-action", action: "delete-lobby"}));
+        }
+    }
+
     const joinLobby = (lobby_id) => {
         console.log("connecting to lobby " + lobby_id);
         if(ws?.readyState === WebSocket.OPEN) {
@@ -64,10 +73,20 @@ const MainPage = () => {
             console.log("Connected to GameServer");
             // open chat panel
         }
+
+        websocket.addEventListener("message", (message) => {
+            const parsed = JSON.parse(message.data);
+
+            if(parsed?.type === "lobbydata"){
+                setLobbyData(parsed.lobby);
+            }
+        });
+
         websocket.onclose = (close) => {
             alert("Disconnected:" + close.reason);
             // close chat panel
             setWs(null);
+            setLobbyData(null);
         }
     }
 
@@ -75,7 +94,8 @@ const MainPage = () => {
         <div className="sidepanel">
             <UsernameDisplay handlelogout={logout}/><hr />
             <CreateLobby/>
-            {!loading && (<><LobbyList handleJoinLobby={joinLobby}/></>)}
+            {(!loading && !lobbyData) && (<><LobbyList handleJoinLobby={joinLobby}/></>)}
+            {lobbyData && <LobbyMenu lobbyData={lobbyData} handleDelete={handleDeleteLobby}/>}
         </div>
         <hr />
 
@@ -83,8 +103,7 @@ const MainPage = () => {
 
             <nav>
                 <ul>
-                    <li><Link to="/login">Login</Link></li>
-                    <li><Link to="/register">Register</Link></li>
+                    <h2>Placeholder</h2>
                 </ul>
             </nav>
             <Outlet />

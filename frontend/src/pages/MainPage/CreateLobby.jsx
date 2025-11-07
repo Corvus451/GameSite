@@ -18,7 +18,8 @@ const CreateLobby = () => {
             },
             body: JSON.stringify({
                 lobby_name: lobbyName,
-                public: isPublic
+                public: isPublic,
+                game: "tictactoe"
             })
         });
 
