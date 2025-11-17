@@ -59,6 +59,12 @@ const MainPage = () => {
         }
     }
 
+    const startGame = () => {
+        if(lobbyData?.owner_id === settings.user_id){
+            ws?.send(JSON.stringify({type: "lobby-action", action: "start-game"}));
+        }
+    }
+
     const joinLobby = (lobby_id) => {
         console.log("connecting to lobby " + lobby_id);
         if(ws?.readyState === WebSocket.OPEN) {
@@ -79,6 +85,9 @@ const MainPage = () => {
 
             if(parsed?.type === "lobbydata"){
                 setLobbyData(parsed.lobby);
+            } else if (parsed?.type === "game-started") {
+                console.log(parsed.gamestate);
+                alert("Game started");
             }
         });
 
@@ -95,7 +104,7 @@ const MainPage = () => {
             <UsernameDisplay handlelogout={logout}/><hr />
             <CreateLobby/>
             {(!loading && !lobbyData) && (<><LobbyList handleJoinLobby={joinLobby}/></>)}
-            {lobbyData && <LobbyMenu lobbyData={lobbyData} handleDelete={handleDeleteLobby}/>}
+            {lobbyData && <LobbyMenu lobbyData={lobbyData} handleDelete={handleDeleteLobby} handleStartGame={startGame}/>}
         </div>
         <hr />
 

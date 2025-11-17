@@ -69,6 +69,9 @@ const ChatPanel = ({ ws, setWs }) => {
         if (parsed.type === "error") {
             alert(parsed.message);
         }
+        else if (parsed.type === "alert") {
+            alert(parsed.message);
+        }
         else if (parsed.type === "system-message") {
             addChatMessage("system-message", parsed.message);
         }

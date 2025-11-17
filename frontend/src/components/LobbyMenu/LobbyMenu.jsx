@@ -1,4 +1,4 @@
-const LobbyMenu = ({ lobbyData, handleDelete }) => {
+const LobbyMenu = ({ lobbyData, handleDelete, handleStartGame}) => {
 
 
     return (
@@ -9,6 +9,7 @@ const LobbyMenu = ({ lobbyData, handleDelete }) => {
             </div>
             <div>
                 <button onClick={handleDelete}>Delete lobby</button>
+                <button onClick={handleStartGame}>Start</button>
             </div>
         </div>
     );
