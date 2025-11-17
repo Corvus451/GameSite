@@ -1,6 +1,7 @@
 const redisClient = require("../services/redis.js");
 const { authenticate } = require("../services/auth.js");
 const { URL } = require("url");
+const gameLogic = require("../gamelogic/tictactoe.js");
 
 const clientLists = new Map();
 
@@ -20,9 +21,10 @@ const deleteLobby = (lobby_id, publish = false) => {
 
     const clients = clientLists.get(lobby_id);
 
+    // Close every connection in this lobby.
     clients.forEach(client => {
         client.forceClose = true;
-        client.close(1000, JSON.stringify({ type: "lobby-deleted", message: "Lobby deleted" })); // Close every connection in this lobby.
+        client.close(1000, JSON.stringify({ type: "lobby-deleted", message: "Lobby deleted" }));
     });
 
     redisClient.redisUnsetMessageHandler("lobby:"+lobby_id); // Unsubscribe from this channel
@@ -44,6 +46,12 @@ const handleLobbyAction = async (ws, parsed) => {
         deleteLobby(lobby.lobby_id, true);
         return;
     }
+
+    if(parsed.action === "start-game") {
+        const gamestate = gameLogic.start(lobby);
+        broadcastMessage(lobby.lobby_id, {type: "game-started", gamestate: gamestate});
+        return;
+    }
 }
 
 const removeClientFromList = (ws) => {
@@ -59,7 +67,7 @@ const handleRedisMessage = (parsed, channel) => {
     switch (parsed.type) {
         case "chat-message":
         case "system-message":
-            broadcastMessage(parsed.lobby_id, parsed.message);
+            broadcastMessage(parsed.lobby_id, parsed.payload.message);
             break;
 
         case "lobby-deleted":
@@ -70,7 +78,7 @@ const handleRedisMessage = (parsed, channel) => {
             console.log("message type is unhandled");
             break;
     }
-}
+} // todo: handle client-removed publish, game-started publish
 
 const handleChatMessage = (ws, parsed) => {
 
@@ -96,22 +104,36 @@ exports.wsJoin = async (ws, req) => {
     // Get lobby data.
     const lobby = await redisClient.redisGetLobbyById(lobbyId);
 
+    
     // Validations
     if (!lobby) {
+        ws.forceClose = true;
         ws.close(4000, JSON.stringify({ type: "error", message: "Lobby not found" }));
         return false;
     }
     if (!sessionToken) {
+        ws.forceClose = true;
         ws.close(4000, JSON.stringify({ type: "error", message: "Mising sessionToken" }));
         return false;
     }
 
     // Authenticate client
     const userData = await authenticate(sessionToken);
-
+    
     if (!userData) {
+        ws.forceClose = true;
         ws.close(4000, JSON.stringify({ type: "error", message: "Invalid sessionToken" }));
         return false;
+    }
+
+    // Get the client list for this lobby.
+    const clients = clientLists.get(lobby.lobby_id);
+
+
+    // check if lobby is full.
+    if(clients?.length >= lobby.max_clients){
+        ws.forceClose = true;
+        ws.close(4000, JSON.stringify({ type: "error", message: "Lobby is full" }));
     }
 
     // Set the handleRedisMessage function to be called by the subscriber client
@@ -128,7 +150,7 @@ exports.wsJoin = async (ws, req) => {
     redisClient.redisAddUserToLobby(lobby.lobby_id, userData.user_id);
 
     // Get the client list for this lobby.
-    const clients = clientLists.get(lobby.lobby_id);
+    // const clients = clientLists.get(lobby.lobby_id);
 
     if (!clients) {
         clientLists.set(lobbyId, [ws]); // If it doesn't exist, create it and add the current client to it.
@@ -192,6 +214,9 @@ exports.wsMessage = (ws, message) => {
             break;
         case "lobby-action":
             handleLobbyAction(ws, parsed);
+            break;
+        case "game-move":
+            gameLogic.handleGameMove(ws.userData.user_id, parsed.move);
             break;
         default:
             break;

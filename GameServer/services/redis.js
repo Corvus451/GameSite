@@ -74,6 +74,16 @@ exports.redisGetLobbyById = async (id) => {
     return lobby;
 }
 
+const publish = async (lobby_id, type, payload) => {
+    const result = await redisClient.publish("lobby:"+lobby_id, JSON.stringify({
+        type: type,
+        host: HOSTNAME,
+        lobby_id: lobby_id,
+        payload: payload
+    }));
+    return result;
+}
+
 exports.redisDeleteLobby = async (lobby_id) => {
     //Delete the lobby object from redis.
     const result = await redisClient.json.del("lobby:"+lobby_id);
@@ -82,7 +92,8 @@ exports.redisDeleteLobby = async (lobby_id) => {
     await redisClient.lRem("lobby:list", 0, "lobby:"+lobby_id);
 
     //Publish lobby deletion for the other servers. Add hostname so the server can ignore it's own publishes.
-    await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "lobby-deleted",  host: HOSTNAME ,lobby_id: lobby_id}));
+    // await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "lobby-deleted",  host: HOSTNAME ,lobby_id: lobby_id}));
+    await publish(lobby_id, "lobby-deleted", null);
     return result;
 }
 
@@ -93,13 +104,15 @@ exports.redisAddChatMessage = async (lobby_id, message) => {
     const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.messages", message);
 
     //Publish The message on the right channel. Add hostname so the server can ignore it's own publishes.
-    await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "chat-message", lobby_id: lobby_id, host: HOSTNAME, message: message}));
+    // await redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "chat-message", lobby_id: lobby_id, host: HOSTNAME, message: message}));
+    await publish(lobby_id, "chat-message", {message: message});
     return result;
 }
 
 exports.redisAddUserToLobby = async (lobby_id, user_id) => {
     const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.connected_users", JSON.stringify(user_id));
-    redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "user-added", host: HOSTNAME, lobby_id: lobby_id, user_id: user_id}));
+    // redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "user-added", host: HOSTNAME, lobby_id: lobby_id, user_id: user_id}));
+    await publish(lobby_id, "user-added", {user_id: user_id});
     return result;
 }
 
@@ -112,7 +125,18 @@ exports.redisRemoveUserFromLobby = async (lobby_id, user_id) => {
     lobby.connected_users.splice(lobby.connected_users.indexOf(JSON.stringify(user_id)), 1);
 
     const result = await redisClient.json.set("lobby:"+lobby_id, "$.connected_users", lobby.connected_users);
-    redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "user-removed", host: HOSTNAME, lobby_id: lobby_id, user_id: user_id}));
+    // redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "user-removed", host: HOSTNAME, lobby_id: lobby_id, user_id: user_id}));
+    await publish(lobby_id, "user-removed", {user_id: user_id});
+    return result;
+}
+
+exports.redisJsonSet = async (target, path, value) => {
+    const result = await redisClient.json.set(target, path, JSON.stringify(value));
+    return result;
+};
+
+exports.redisPublishGamestate = async (lobby_id, gamestate) => {
+    const result = await publish(lobby_id, "game-started", {gamestate: gamestate});
     return result;
 }
 
