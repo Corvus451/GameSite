@@ -48,10 +48,21 @@ const handleLobbyAction = async (ws, parsed) => {
     }
 
     if(parsed.action === "start-game") {
+        if(lobby.connected_users.length < 2){
+            ws.send(JSON.stringify({type: "error", message: "not enough players"}));
+        }
         const gamestate = gameLogic.start(lobby);
-        broadcastMessage(lobby.lobby_id, {type: "game-started", gamestate: gamestate});
+        broadcastMessage(lobby.lobby_id, {type: "game-state", gamestate: gamestate});
         return;
     }
+
+    // if(parsed.action === "game-move") {
+    //     if(!lobby.gamestate) {
+    //         ws.send(json.stringify({type: "error", message: "game not started"}));
+    //         return;
+    //     }
+    //     gameLogic.handleGameMove(lobby, ws.userData.user_id, parsed.move);
+    // }
 }
 
 const removeClientFromList = (ws) => {
@@ -73,6 +84,8 @@ const handleRedisMessage = (parsed, channel) => {
         case "lobby-deleted":
             deleteLobby(parsed.lobby_id, false);
             break;
+        case "game-state":
+            console.log("gamestate redis update");
 
         default:
             console.log("message type is unhandled");
@@ -197,7 +210,7 @@ exports.wshandleClose = (ws) => {
 
 
 
-exports.wsMessage = (ws, message) => {
+exports.wsMessage = async (ws, message) => {
 
     const parsed = JSON.parse(message);
 
@@ -206,9 +219,9 @@ exports.wsMessage = (ws, message) => {
         return;
     }
 
-    const type = parsed.type;
+    // const type = parsed.type;
 
-    switch (type) {
+    switch (parsed.type) {
         case "chat-message":
             handleChatMessage(ws, parsed);
             break;
@@ -216,7 +229,11 @@ exports.wsMessage = (ws, message) => {
             handleLobbyAction(ws, parsed);
             break;
         case "game-move":
-            gameLogic.handleGameMove(ws.userData.user_id, parsed.move);
+            const result = await gameLogic.handleGameMove(ws.lobby_id, ws.userData.user_id, parsed.move);
+            if (!result) {
+                ws.send(JSON.stringify({type: "error", message: "game not started"}));
+            }
+            broadcastMessage(ws.lobby_id, {type: "game-state", gamestate: result});
             break;
         default:
             break;

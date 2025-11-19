@@ -136,7 +136,7 @@ exports.redisJsonSet = async (target, path, value) => {
 };
 
 exports.redisPublishGamestate = async (lobby_id, gamestate) => {
-    const result = await publish(lobby_id, "game-started", {gamestate: gamestate});
+    const result = await publish(lobby_id, "game-state", {gamestate: gamestate});
     return result;
 }
 
