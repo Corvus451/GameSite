@@ -110,7 +110,8 @@ exports.redisAddChatMessage = async (lobby_id, message) => {
 }
 
 exports.redisAddUserToLobby = async (lobby_id, user_id) => {
-    const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.connected_users", JSON.stringify(user_id));
+    // const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.connected_users", JSON.stringify(user_id));
+    const result = await redisClient.json.arrAppend("lobby:"+lobby_id, "$.connected_users", user_id);
     // redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "user-added", host: HOSTNAME, lobby_id: lobby_id, user_id: user_id}));
     await publish(lobby_id, "user-added", {user_id: user_id});
     return result;
@@ -120,9 +121,11 @@ exports.redisRemoveUserFromLobby = async (lobby_id, user_id) => {
     const lobby = await redisClient.json.get("lobby:"+lobby_id, "$");
     if(!lobby) { return false; }
     if(!lobby.connected_users) { return false; }
-    if(!lobby.connected_users.includes(JSON.stringify(user_id))) { return false; }
+    // if(!lobby.connected_users.includes(JSON.stringify(user_id))) { return false; }
+    if(!lobby.connected_users.includes(user_id)) { return false; }
 
-    lobby.connected_users.splice(lobby.connected_users.indexOf(JSON.stringify(user_id)), 1);
+    // lobby.connected_users.splice(lobby.connected_users.indexOf(JSON.stringify(user_id)), 1);
+    lobby.connected_users.splice(lobby.connected_users.indexOf(user_id), 1);
 
     const result = await redisClient.json.set("lobby:"+lobby_id, "$.connected_users", lobby.connected_users);
     // redisClient.publish("lobby:"+lobby_id, JSON.stringify({type: "user-removed", host: HOSTNAME, lobby_id: lobby_id, user_id: user_id}));
@@ -134,6 +137,11 @@ exports.redisJsonSet = async (target, path, value) => {
     const result = await redisClient.json.set(target, path, JSON.stringify(value));
     return result;
 };
+
+exports.redisSetGameState = async (lobby_id, gamestate) => {
+    const result = await redisClient.json.set("lobby:"+lobby_id, "$.gamestate", gamestate);
+    return result;
+}
 
 exports.redisPublishGamestate = async (lobby_id, gamestate) => {
     const result = await publish(lobby_id, "game-state", {gamestate: gamestate});

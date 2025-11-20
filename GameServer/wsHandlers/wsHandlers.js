@@ -50,6 +50,7 @@ const handleLobbyAction = async (ws, parsed) => {
     if(parsed.action === "start-game") {
         if(lobby.connected_users.length < 2){
             ws.send(JSON.stringify({type: "error", message: "not enough players"}));
+            return;
         }
         const gamestate = gameLogic.start(lobby);
         broadcastMessage(lobby.lobby_id, {type: "game-state", gamestate: gamestate});
@@ -232,6 +233,7 @@ exports.wsMessage = async (ws, message) => {
             const result = await gameLogic.handleGameMove(ws.lobby_id, ws.userData.user_id, parsed.move);
             if (!result) {
                 ws.send(JSON.stringify({type: "error", message: "game not started"}));
+                return;
             }
             broadcastMessage(ws.lobby_id, {type: "game-state", gamestate: result});
             break;
