@@ -6,6 +6,7 @@ import CreateLobby from "./CreateLobby";
 import LobbyList from "../../components/lobbyList/LobbyList";
 import ChatPanel from "../../components/chat/ChatPanel";
 import LobbyMenu from "../../components/LobbyMenu/LobbyMenu";
+import Game from "../../components/Game/Game"
 
 const MainPage = () => {
 
@@ -50,7 +51,6 @@ const MainPage = () => {
         }
         setSettings({});
         navigate("/login");
-
     }
 
     const handleDeleteLobby = () => {
@@ -62,7 +62,7 @@ const MainPage = () => {
     const startGame = () => {
         if(lobbyData?.owner_id === settings.user_id){
             ws?.send(JSON.stringify({type: "lobby-action", action: "start-game"}));
-        }
+        } else { alert("error"); }
     }
 
     const joinLobby = (lobby_id) => {
@@ -85,10 +85,11 @@ const MainPage = () => {
 
             if(parsed?.type === "lobbydata"){
                 setLobbyData(parsed.lobby);
-            } else if (parsed?.type === "game-started") {
-                console.log(parsed.gamestate);
-                alert("Game started");
             }
+            // else if (parsed?.type === "game-state") {
+            //     console.log(parsed.gamestate);
+            //     alert("Game started");
+            // }
         });
 
         websocket.onclose = (close) => {
@@ -110,12 +111,9 @@ const MainPage = () => {
 
         <div className="mainpanel">
 
-            <nav>
-                <ul>
-                    <h2>Placeholder</h2>
-                </ul>
-            </nav>
-            <Outlet />
+            {ws ? <Game ws={ws} /> : <></>}
+
+            {/* <Outlet /> */}
         </div>
         
         {ws && <><hr /> <ChatPanel ws={ws} setWs={setWs}/></>}

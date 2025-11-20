@@ -92,6 +92,7 @@ button:hover {
 
 .mainpanel {
     display: flex;
+    justify-content: center;
     /* background-color: black; */
     flex: 1;
     /* width: 70%; */
@@ -249,6 +250,37 @@ button:hover {
 .listitem:hover {
     .joinbutton {
         display: block;
+    }
+}
+
+.gamedisplay {
+    display: flex;
+    flex-direction: column;
+    height: 60%;
+    width: 60%;
+    border-radius: 7px;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: #ffffff1c;
+
+    div {
+        background-color: transparent;
+        display: flex;
+        flex-direction: row;
+        flex: 1;
+        gap: 0.5rem;
+        width: 100%;
+
+        div {
+            border-radius: 7px;
+            font-size: xx-large;
+            background-color: #6666665d;
+            align-items: center;
+            justify-content: center;
+        }
     }
 }
 
