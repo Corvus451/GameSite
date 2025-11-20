@@ -231,11 +231,11 @@ exports.wsMessage = async (ws, message) => {
             break;
         case "game-move":
             const result = await gameLogic.handleGameMove(ws.lobby_id, ws.userData.user_id, parsed.move);
-            if (!result) {
-                ws.send(JSON.stringify({type: "error", message: "game not started"}));
+            if (!result.broadcast) {
+                ws.send(JSON.stringify(result));
                 return;
             }
-            broadcastMessage(ws.lobby_id, {type: "game-state", gamestate: result});
+            broadcastMessage(ws.lobby_id, result);
             break;
         default:
             break;

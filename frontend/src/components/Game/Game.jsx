@@ -6,12 +6,19 @@ const Game = ({ ws }) => {
 
     const [gamestate, setGameState] = useState(null);
     const [settings, setSettings] = useContext(SettingsContext);
+    // const [winner, setWinner] = useState(null);
 
     const handleGameState = (message) => {
 
         const parsed = JSON.parse(message.data);
         if(parsed.type === "game-state") {
             setGameState(parsed.gamestate);
+            // setWinner(null);
+        }
+        else if(parsed.type === "winner"){
+            setGameState(parsed.gamestate);
+            // setWinner(parsed.winner);
+            // alert(parsed.winner === settings.user_id ? "You win!" : "You lose");
         }
     }
 
@@ -22,13 +29,13 @@ const Game = ({ ws }) => {
     }
 
     const place = (clicked) => {
-        if(gamestate.nextPlayer === settings.user_id) {
-            const coord = clicked.split('-');
-            ws.send(JSON.stringify({type: "game-move", move: {type: "place", coord: coord}}));
-        }
-        else {
-            alert("It's not your turn");
-        }
+        // if(gamestate.nextPlayer === settings.user_id) {
+        // }
+        const coord = clicked.split('-');
+        ws.send(JSON.stringify({type: "game-move", move: {type: "place", coord: coord}}));
+        // else {
+        //     alert("It's not your turn");
+        // }
     }
 
     useEffect(()=> {
@@ -52,7 +59,7 @@ const Game = ({ ws }) => {
                     </div>
                 })}
             </div>
-            <button onClick={place}>place</button>
+            {gamestate.winner && <h1>{gamestate.winner === settings.user_id ? "You win!" : "you lose" }</h1>}
         </>
     )
 }
