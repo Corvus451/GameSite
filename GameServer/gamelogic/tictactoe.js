@@ -50,6 +50,15 @@ const checkWinner = (board, player) => {
     return false;
 }
 
+const checkDraw = (board) => {
+    for(let i=0; i<=2; i++) {
+        for(let j=0;  j<=2; j++) {
+            if(board[i][j] === null) { return false; }
+        }
+    }
+    return true;
+}
+
 exports.start = (lobby) => {
     // place gameState into redis lobby object and publish it
     const newGame = gamestate(lobby.connected_users);
@@ -85,8 +94,6 @@ exports.handleGameMove = async (lobby_id, user_id, move) => {
         return {type: "error", message: "no move or move.type", broadcast: false};
     }
 
-
-
     switch (move.type) {
         case "place":
             const success = placeMarker(lobby.gamestate, move.coord, user_id);
@@ -101,17 +108,18 @@ exports.handleGameMove = async (lobby_id, user_id, move) => {
 
     // check winner
     if(checkWinner(lobby.gamestate.board, user_id)) {
-        console.log(user_id, " win");
         // lobby.gamestate.end = true;
         lobby.gamestate.winner = user_id;
-        console.log(lobby.gamestate.end);
-        result = {type: "game-state", winner: user_id, gamestate: lobby.gamestate, broadcast: true};
+        // result = {type: "game-state", winner: user_id, gamestate: lobby.gamestate, broadcast: true};
+    }
+    else if(checkDraw(lobby.gamestate.board)) {
+        lobby.gamestate.winner = -1;
     }
     else {
         // Rotate next player id
         lobby.gamestate.index = (lobby.gamestate.index + 1) % 2;
         lobby.gamestate.nextPlayer = lobby.gamestate.players[lobby.gamestate.index];
-        result = {type: "game-state", gamestate: lobby.gamestate, broadcast: true};
+        // result = {type: "game-state", gamestate: lobby.gamestate, broadcast: true};
     }
 
 
@@ -119,6 +127,7 @@ exports.handleGameMove = async (lobby_id, user_id, move) => {
     await redisClient.redisSetGameState(lobby_id, lobby.gamestate);
     await redisClient.redisPublishGamestate("lobby:"+lobby_id, lobby.gamestate);
 
-    return result;
+    // return result;
+    return {type: "game-state", gamestate: lobby.gamestate, broadcast: true};
     
 }

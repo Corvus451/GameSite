@@ -59,7 +59,7 @@ const Game = ({ ws }) => {
                     </div>
                 })}
             </div>
-            {gamestate.winner && <h1>{gamestate.winner === settings.user_id ? "You win!" : "you lose" }</h1>}
+            {(gamestate.winner !== null) && <h1>{gamestate.winner === settings.user_id ? "You win!" : gamestate.winner === -1 ? "draw" :"you lose" }</h1>}
         </>
     )
 }

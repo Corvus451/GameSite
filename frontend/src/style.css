@@ -36,6 +36,7 @@ hr {
 .aic {
     display: flex;
     align-items: center;
+    align-content: center;
 }
 
 .justify-sb {
@@ -49,6 +50,7 @@ hr {
 .container {
     background-color: rgb(29, 29, 29);
     display: flex;
+    box-shadow: inset 0px 0px 20px 20px #00000033;
     /* backdrop-filter: blur(150px) contrast(0.9);
     box-shadow: inset 0px 0px 20px 11px #ffffff0f;
     border-radius: 7px;
@@ -266,7 +268,8 @@ button:hover {
     justify-content: center;
     gap: 0.5rem;
     padding: 1rem;
-    background-color: #ffffff1c;
+    background-color: #1d1d1d;
+    box-shadow: inset 0px 0px 20px 10px #0000007a;
 
     div {
         background-color: transparent;
@@ -279,9 +282,11 @@ button:hover {
         div {
             border-radius: 7px;
             font-size: xx-large;
-            background-color: #6666665d;
+            /* background-color: #6666665d; */
             align-items: center;
             justify-content: center;
+            box-shadow: inset 0px 0px 20px 14px #0000001a;
+            backdrop-filter: brightness(1.5);
         }
     }
 }

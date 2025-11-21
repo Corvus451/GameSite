@@ -56,14 +56,6 @@ const handleLobbyAction = async (ws, parsed) => {
         broadcastMessage(lobby.lobby_id, {type: "game-state", gamestate: gamestate});
         return;
     }
-
-    // if(parsed.action === "game-move") {
-    //     if(!lobby.gamestate) {
-    //         ws.send(json.stringify({type: "error", message: "game not started"}));
-    //         return;
-    //     }
-    //     gameLogic.handleGameMove(lobby, ws.userData.user_id, parsed.move);
-    // }
 }
 
 const removeClientFromList = (ws) => {
@@ -87,6 +79,7 @@ const handleRedisMessage = (parsed, channel) => {
             break;
         case "game-state":
             console.log("gamestate redis update");
+            broadcastMessage(parsed.lobby_id, parsed.payload.gamestate);
 
         default:
             console.log("message type is unhandled");
@@ -140,19 +133,22 @@ exports.wsJoin = async (ws, req) => {
         return false;
     }
 
-    // Get the client list for this lobby.
-    const clients = clientLists.get(lobby.lobby_id);
-
-
     // check if lobby is full.
-    if(clients?.length >= lobby.max_clients){
+    if(lobby.connected_users.length >= lobby.max_clients) {
         ws.forceClose = true;
         ws.close(4000, JSON.stringify({ type: "error", message: "Lobby is full" }));
+        return false;
     }
-
+    
+    // check if lobby is full.
+    // if(clients?.length >= lobby.max_clients){
+    //     ws.forceClose = true;
+    //     ws.close(4000, JSON.stringify({ type: "error", message: "Lobby is full" }));
+    // }
+    
     // Set the handleRedisMessage function to be called by the subscriber client
     redisClient.redisSetMessageHandler(handleRedisMessage, "lobby:" + lobbyId);
-
+    
     console.log(userData.username + " connected");
     
     // Set these variables for the client
@@ -162,10 +158,10 @@ exports.wsJoin = async (ws, req) => {
     
     // Add user id to redis lobby.connected_users
     redisClient.redisAddUserToLobby(lobby.lobby_id, userData.user_id);
-
+    
     // Get the client list for this lobby.
-    // const clients = clientLists.get(lobby.lobby_id);
-
+    const clients = clientLists.get(lobby.lobby_id);
+    
     if (!clients) {
         clientLists.set(lobbyId, [ws]); // If it doesn't exist, create it and add the current client to it.
     }
