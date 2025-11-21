@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 const UsernameDisplay = ({handlelogout}) => {
 
     const [settings, setSettings] = useContext(SettingsContext);
-    const navigate = useNavigate();
 
     return (
         <div className="namedisplay">

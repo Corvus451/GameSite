@@ -19,6 +19,7 @@ const ChatPanel = ({ ws, setWs }) => {
     }, [chatHistory]);
 
     const addChatMessage = async (name, message) => {
+        console.log("ADDING CHAT MESSAGE");
       setChatHistory(prev => [...prev, { username: name, message: message }]);
 
     }
@@ -30,17 +31,29 @@ const ChatPanel = ({ ws, setWs }) => {
 
     const sendMessage = (msg) => {
 
+        if(sending) { return; }
+
         const message = {
-            type: "chatmessage",
+            type: "chat-message",
             message: msg
         };
 
         ws.send(JSON.stringify(message));
 
         setSending(true);
+        setMsg("");
 
         // addChatMessage(settings.username, msg);
 
+    }
+
+    const sendAction = (action) => {
+        const message = {
+            type: "lobby-action",
+            action: action
+        };
+
+        ws.send(JSON.stringify(message));
     }
 
     // ws.onclose = (close) => {
@@ -48,18 +61,21 @@ const ChatPanel = ({ ws, setWs }) => {
     //     // close chat panel
     // }
 
-    ws.onmessage = (message) => {
+    const messageHandler = (message) => {
         const parsed = JSON.parse(message.data);
 
-        console.log("Message received");
+        console.log("MESSAGE RECEIVED");
 
         if (parsed.type === "error") {
+            alert(parsed.message);
+        }
+        else if (parsed.type === "alert") {
             alert(parsed.message);
         }
         else if (parsed.type === "system-message") {
             addChatMessage("system-message", parsed.message);
         }
-        else if (parsed.type === "chatmessage") {
+        else if (parsed.type === "chat-message") {
             addChatMessage(parsed.username, parsed.message);
             if(sending && parsed.username === settings.username) {
                 setSending(false);
@@ -72,7 +88,38 @@ const ChatPanel = ({ ws, setWs }) => {
             setLobbyId(parsed.lobby.lobby_id);
         }
         document.querySelector(".chathistory").scrollTo(0, document.querySelector(".chathistory").scrollHeight);
-    }
+    };
+
+    useEffect(()=> {
+        ws.addEventListener("message", messageHandler);
+        return () => { ws.removeEventListener("message", messageHandler); };
+    })
+
+    // ws.onmessage = (message) => {
+    //     const parsed = JSON.parse(message.data);
+
+    //     console.log("Message received");
+
+    //     if (parsed.type === "error") {
+    //         alert(parsed.message);
+    //     }
+    //     else if (parsed.type === "system-message") {
+    //         addChatMessage("system-message", parsed.message);
+    //     }
+    //     else if (parsed.type === "chatmessage") {
+    //         addChatMessage(parsed.username, parsed.message);
+    //         if(sending && parsed.username === settings.username) {
+    //             setSending(false);
+    //         }
+    //     }
+    //     else if(parsed.type === "lobbydata") {
+    //         console.log("lobby data:");
+    //         console.log(parsed.lobby);
+    //         addchatMessages(parsed.lobby.messages);
+    //         setLobbyId(parsed.lobby.lobby_id);
+    //     }
+    //     document.querySelector(".chathistory").scrollTo(0, document.querySelector(".chathistory").scrollHeight);
+    // }
 
     const disconnect = () => {
         ws.close(1000, "Disconnected by user");

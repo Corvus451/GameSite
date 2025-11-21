@@ -8,7 +8,6 @@ const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [settings, setSettings] = useContext(SettingsContext)
-    // const [invalid, setInvalid] = useState(false);
 
     const navigate = useNavigate();
 
@@ -29,9 +28,6 @@ const Login = () => {
         const data = await result.json();
 
         if (result.ok) {
-            // setSettings({
-            //     ...settings, username: data.user.username, sessionToken: data.sessionToken, loggedIn: true
-            // });
             navigate("/");
         } else {
             alert(data.message);

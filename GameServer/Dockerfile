@@ -8,7 +8,8 @@ COPY ./gamelogic/chat.js ./gamelogic/chat.js
 COPY ./index.js ./index.js
 COPY ./services/auth.js ./services/auth.js
 COPY ./services/redis.js ./services/redis.js 
-
+COPY ./wsHandlers/wsHandlers.js ./wsHandlers/wsHandlers.js
+COPY ./gamelogic/tictactoe.js ./gamelogic/tictactoe.js
 RUN npm install
 
 EXPOSE 3333
