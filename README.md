@@ -1,3 +1,4 @@
+<a id="readme-top"></a>
 <div align="center">
   <h1 align="center">Game Site Project</h1>
 </div>
@@ -13,22 +14,21 @@ Currently only the lobby and chat system is implemented, but a game system for m
 
 ### Technologies used:
 
-* AWS
-* Kubernetes
-* Docker
-* Terraform
-* Express JS
-* Websocket
-* nginx
-* Redis
-* React
-* PostgreSQL
+ * ![Static Badge](https://img.shields.io/badge/aws-black?style=for-the-badge&logo=amazonwebservice)
+ * ![Static Badge](https://img.shields.io/badge/kubernetes-black?style=for-the-badge&logo=kubernetes)
+ * ![Static Badge](https://img.shields.io/badge/docker-black?style=for-the-badge&logo=docker)
+ * ![Static Badge](https://img.shields.io/badge/terraform-black?style=for-the-badge&logo=terraform)
+ * ![Static Badge](https://img.shields.io/badge/express.js-black?style=for-the-badge&logo=express)
+ * ![Static Badge](https://img.shields.io/badge/nginx-black?style=for-the-badge&logo=nginx)
+ * ![Static Badge](https://img.shields.io/badge/redis-black?style=for-the-badge&logo=redis)
+ * ![Static Badge](https://img.shields.io/badge/PostgreSQL-black?style=for-the-badge&logo=postgresql)
+ * ![react Badge](https://img.shields.io/badge/React-black?style=for-the-badge&logo=react)
 
 ## Dependencies
 
-* AWS CLI
+* AWS cli
 * Docker
-* KubeCTL
+* Kubectl
 * Terraform
 * npm
 
@@ -65,11 +65,19 @@ Currently only the lobby and chat system is implemented, but a game system for m
     kubectl get ingress
     kubectl delete ingress <ingress name>
     ```
-2. Delete the ECR images created by terraform
+2. Delete the ECR images created by terraform, from the AWS console, or with aws cli:
+    ```sh
+    aws ecr delete-repository --repository-name <repository name> --force
+    ```
 3. Run terraform destroy and type yes to wipe the resources
     ```sh
     terraform destroy
     ```
 Now The project is deleted from AWS.
+<p align="right"><a href="#readme-top">back to top</a></p>
 
 [product-screenshot]: images/gamesite.JPG
+
+
+
+[React-url]: https://reactjs.org/
