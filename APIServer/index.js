@@ -13,6 +13,7 @@ app.use(express.json());
 app.post(ENDPOINT_PREFIX + "/createlobby", authHandler, routes.createLobby);
 app.get(ENDPOINT_PREFIX + "/lobbies", authHandler, routes.getPublicLobbies);
 app.get("/health", routes.healthCheck);
+app.get(ENDPOINT_PREFIX + "/test", routes.healthCheck);
 
 
 const main = async () => {
