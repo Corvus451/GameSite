@@ -48,6 +48,11 @@ variable "refresh_token_expire" {
   sensitive = true
 }
 
+variable "github_runner_arn" {
+  type = string
+  sensitive = true
+}
+
 # variable "api_endpoint_prefix" {
 #   type = string
 # }

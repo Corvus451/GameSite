@@ -14,6 +14,7 @@ module "eks" {
   subnet_ids = module.vpc.subnet_ids
   subnet_private_ids = module.vpc.subnet_private_ids
   configure_kubectl = true
+  github_runner_arn = var.github_runner_arn
 }
 
 module "bastion" {

@@ -28,3 +28,7 @@ variable "configure_kubectl" {
 variable "instance_types" {
   type = list(string)
 }
+
+variable "github_runner_arn" {
+  type = string
+}
