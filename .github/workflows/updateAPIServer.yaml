@@ -37,6 +37,9 @@ jobs:
           aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
 
       - name: Update Deployment image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_API }}
         run: |
           kubectl set image deployment/apiserver \
             apiserver=$ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
