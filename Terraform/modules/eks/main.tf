@@ -46,6 +46,32 @@ resource "aws_iam_role" "cluster" {
   })
 }
 
+resource "kubernetes_config_map" "aws_auth" {
+  depends_on = [aws_eks_cluster.this]
+
+  metadata {
+    name      = "aws-auth"
+    namespace = "kube-system"
+  }
+
+  data = {
+    mapRoles = <<EOT
+- rolearn: ${aws_iam_role.node.arn}
+  username: system:node:{{EC2PrivateDNSName}}
+  groups:
+    - system:bootstrappers
+    - system:nodes
+EOT
+
+    mapUsers = <<EOT
+- userarn: ${var.github_runner_arn}
+  username: github-actions
+  groups:
+    - system:masters
+EOT
+  }
+}
+
 resource "terraform_data" "configure_kubectl" {
   count = var.configure_kubectl ? 1 : 0
   depends_on = [aws_eks_cluster.this]
