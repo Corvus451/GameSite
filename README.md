@@ -10,7 +10,7 @@
 This is a scalable web application written to run in AWS EKS.
 Users can create accounts Then they can create game rooms to play and chat with each other.
 
-Currently only the lobby and chat system is implemented, but a game system for multiple turn based game is planned to be done in the future.
+The applications is separated into `microservices` and runs in a `Kubernetes cluster`. Resources are created with `Terraform`. Automations are written with `Github actions` for the microservices, so on updating a microservice, it will be automatically deployed.
 
 ### Technologies used:
 
@@ -23,6 +23,8 @@ Currently only the lobby and chat system is implemented, but a game system for m
  * ![Static Badge](https://img.shields.io/badge/redis-black?style=for-the-badge&logo=redis)
  * ![Static Badge](https://img.shields.io/badge/PostgreSQL-black?style=for-the-badge&logo=postgresql)
  * ![react Badge](https://img.shields.io/badge/React-black?style=for-the-badge&logo=react)
+ * ![Static Badge](https://img.shields.io/badge/github%20actions-black?style=for-the-badge&logo=github
+ )
 
 ## Dependencies
 
