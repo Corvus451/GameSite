@@ -34,7 +34,18 @@ The applications is separated into `microservices` and runs in a `Kubernetes clu
 * Terraform
 * npm
 
-## Usage
+## Prerequisites
+
+- AWS IAM user with sufficient permissions to:
+- - VPC
+- - EC2
+- - EKS
+- - ECR
+- - RDS
+- - ElastiCache
+- An S3 Bucket for the Terraform state file.
+
+## How to deploy
 
 1. cd into the `Terraform` directory
 2. Make a `secret.auto.tfvars` file from `secret.auto.tfvars.template`
