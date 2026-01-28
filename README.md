@@ -14,17 +14,27 @@ The applications is separated into `microservices` and runs in a `Kubernetes clu
 
 ### Technologies used:
 
- * ![Static Badge](https://img.shields.io/badge/aws-black?style=for-the-badge&logo=amazonwebservice)
- * ![Static Badge](https://img.shields.io/badge/kubernetes-black?style=for-the-badge&logo=kubernetes)
- * ![Static Badge](https://img.shields.io/badge/docker-black?style=for-the-badge&logo=docker)
- * ![Static Badge](https://img.shields.io/badge/terraform-black?style=for-the-badge&logo=terraform)
- * ![Static Badge](https://img.shields.io/badge/express.js-black?style=for-the-badge&logo=express)
- * ![Static Badge](https://img.shields.io/badge/nginx-black?style=for-the-badge&logo=nginx)
- * ![Static Badge](https://img.shields.io/badge/redis-black?style=for-the-badge&logo=redis)
- * ![Static Badge](https://img.shields.io/badge/PostgreSQL-black?style=for-the-badge&logo=postgresql)
- * ![react Badge](https://img.shields.io/badge/React-black?style=for-the-badge&logo=react)
- * ![Static Badge](https://img.shields.io/badge/github%20actions-black?style=for-the-badge&logo=github
- )
+ * [![aws][aws]][aws-url]
+
+
+ * [![kubernetes][kubernetes]][kubernetes-url]
+
+ * [![docker][docker]][docker-url]
+
+ * [![terraform][terraform]][terraform-url]
+
+ * [![express][express]][express-url]
+
+ * [![nginx][nginx]][nginx-url]
+
+ * [![redis][redis]][redis-url]
+
+ * [![psql][psql]][psql-url]
+
+ * [![react][react]][react-url]
+
+ * [![github][github]][github-url]
+
 
 ## Dependencies
 
@@ -91,6 +101,23 @@ Now The project is deleted from AWS.
 
 [product-screenshot]: images/gamesite.JPG
 
-
-
-[React-url]: https://reactjs.org/
+[aws-url]: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+[aws]: https://img.shields.io/badge/aws-black?style=for-the-badge&logo=amazonwebservice
+[kubernetes]: https://img.shields.io/badge/kubernetes-black?style=for-the-badge&logo=kubernetes
+[kubernetes-url]: https://kubernetes.io/docs/tutorials/kubernetes-basics/
+[docker]: https://img.shields.io/badge/docker-black?style=for-the-badge&logo=docker
+[docker-url]: https://www.docker.com/get-started/
+[terraform]: https://img.shields.io/badge/terraform-black?style=for-the-badge&logo=terraform
+[terraform-url]: https://developer.hashicorp.com/terraform
+[express]: https://img.shields.io/badge/express.js-black?style=for-the-badge&logo=express
+[express-url]: https://expressjs.com/
+[nginx]: https://img.shields.io/badge/nginx-black?style=for-the-badge&logo=nginx
+[nginx-url]: https://nginx.org/en/
+[redis]: https://img.shields.io/badge/redis-black?style=for-the-badge&logo=redis
+[redis-url]: https://redis.io/
+[psql]: https://img.shields.io/badge/PostgreSQL-black?style=for-the-badge&logo=postgresql
+[psql-url]: https://www.postgresql.org/
+[react]: https://img.shields.io/badge/React-black?style=for-the-badge&logo=react
+[react-url]: https://react.dev/
+[github]: https://img.shields.io/badge/github%20actions-black?style=for-the-badge&logo=github
+[github-url]: https://github.com/features/actions
